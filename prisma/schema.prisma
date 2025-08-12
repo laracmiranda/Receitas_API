@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String     @db.VarChar(100)
+  email     String     @unique @db.VarChar(150)
+  password  String
+  favorites Favorite[] // Relação com tabela de favoritos
+
+  @@map("users")
+}
+
+model Recipe {
+  id          String     @id @default(uuid())
+  name        String     @db.VarChar(100)
+  ingredients String[]
+  steps       String
+  creationDate DateTime  @default(now())
+  favorites Favorite[] // Relação com tabela de favoritos
+  
+  @@map("recipes")
+}
+
+model Favorite {
+  id           String     @id @default(uuid())
+  creationDate DateTime   @default(now())
+  userId       String
+  recipeId     String
+  user         User       @relation(fields: [userId], references: [id])
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+
+  @@unique([userId, recipeId]) // Impede que usuário favorite duplicado
+  @@map("favorites")
+}
