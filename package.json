@@ -2,9 +2,12 @@
   "name": "receitas_api",
   "version": "1.0.0",
   "description": "Esse repositório contém uma API para cadastro de receitas com autenticação JWT",
-  "main": "index.js",
+  "main": "nodemon src/server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "repository": {
     "type": "git",
@@ -19,9 +22,14 @@
   "dependencies": {
     "@prisma/client": "^6.13.0",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.1.10"
+    "multer": "^2.0.2",
+    "nodemon": "^3.1.10",
+    "react-router-dom": "^7.8.0"
   },
   "devDependencies": {
     "prisma": "^6.13.0"
