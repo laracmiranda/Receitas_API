@@ -11,7 +11,7 @@ const allowedOrigins = [
 ];
 
 app.use(express.json());
-
+app.use(router);
 app.use(cors({
     origin: function (origin, callback){
         if (!origin || allowedOrigins.includes(origin)) {
@@ -24,13 +24,12 @@ app.use(cors({
     credentials:true,
 }));
 
-app.use(router);
-app.get('/', (req, res) => {
-    res.send('API funcionando! 🤟');
-});
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta http://localhost:${PORT}`);
 })
+
+app.get('/', (req, res) => {
+    res.send('API funcionando! 🤟');
+});
 

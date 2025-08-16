@@ -13,6 +13,7 @@ model User {
   email     String     @unique @db.VarChar(150)
   password  String
   favorites Favorite[] // Relação com tabela de favoritos
+  comments  Comment[] // Relação com a tabela de comentários
 
   @@map("users")
 }
@@ -24,7 +25,8 @@ model Recipe {
   steps       String
   creationDate DateTime  @default(now())
   favorites Favorite[] // Relação com tabela de favoritos
-  
+  comments  Comment[] // Relação com a tabela de comentários
+
   @@map("recipes")
 }
 
@@ -38,4 +40,16 @@ model Favorite {
 
   @@unique([userId, recipeId]) // Impede que usuário favorite duplicado
   @@map("favorites")
+}
+
+model Comment {
+  id           String     @id @default(uuid())
+  creationDate DateTime   @default(now())
+  content      String     @db.Text
+  userId       String
+  recipeId     String
+  user         User       @relation(fields: [userId], references: [id])
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+
+  @@map("comments")
 }
