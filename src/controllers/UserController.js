@@ -63,6 +63,12 @@ export class UserController {
                 return res.status(404).json({ error: "Usuário não encontrado" });
             }
 
+            const emailExists = await prismaClient.user.findUnique ({ where: {email} });
+
+            if (emailExists && emailExists.id !== id){
+                return res.status(409).json({ error: "Email já está em uso"});
+            }
+
             const dataToUpdate = { name, email};
 
             if (password){
@@ -72,7 +78,8 @@ export class UserController {
 
             const updatedUser = await prismaClient.user.update ({
                 where: { id },
-                data: dataToUpdate
+                data: dataToUpdate,
+                select: { id: true, name: true, email: true }
             });
             return res.status(200).json(updatedUser);
         } catch (error) {
