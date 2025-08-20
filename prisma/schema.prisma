@@ -25,6 +25,7 @@ model Recipe {
   ingredients String[]
   steps       String
   creationDate DateTime  @default(now())
+  image       String?
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[] // Relação com a tabela de comentários
 
