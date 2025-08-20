@@ -3,6 +3,8 @@ Esse repositório contém uma API para cadastro de receitas com autenticação J
 
 **Funcionalidades**
 * CRUD completo de usuários e receitas
+* Autenticação com JWT
+
 
 <br/>
 🛠️ Em construção
