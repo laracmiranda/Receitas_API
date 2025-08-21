@@ -29,8 +29,20 @@ export class RecipeController {
         }
     }
 
+    async findRecipeByUser(req, res){
+        try {
+            const recipes = await prismaClient.recipe.findMany({
+                include: {user: true}
+            });
+            return res.status(200).json(recipes);
+        } catch(error){
+            return res.json(500).json({ error: "Erro interno do servidor"});
+        }
+    }
+
     async createRecipe (req, res){
         const { name, category, ingredients, steps } = req.body;
+        const userId = req.user?.id;
 
         // Se veio string, transforma em array separando por vírgula
         let formattedIngredients = ingredients;
@@ -62,7 +74,7 @@ export class RecipeController {
             image = result.secure_url;
         
             const newRecipe = await prismaClient.recipe.create({
-                data: { name, category, ingredients: formattedIngredients, steps, image },
+                data: { name, category, ingredients: formattedIngredients, steps, image, userId },
             });
             return res.status(201).json(newRecipe);
         } catch (error){
@@ -89,7 +101,7 @@ export class RecipeController {
             if (!recipe) {
                 return res.status(404).json({ error: "Receita não encontrada" });
             }
-
+            
             let image = recipe.image;
 
             if (!req.file || !req.file.buffer) {
