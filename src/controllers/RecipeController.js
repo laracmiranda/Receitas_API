@@ -1,4 +1,6 @@
 import { prismaClient } from "../../database/PrismaClient.js";
+import cloudinary from "../../config/cloudinary.js";
+import streamifier from "streamifier";
 
 export class RecipeController {
 
@@ -38,8 +40,29 @@ export class RecipeController {
         }
 
         try {
+            let image = null;
+
+            if (!req.file || !req.file.buffer) {
+                return res.status(400).json({ erro: 'Arquivo não encontrado', mensagem: 'Nenhuma imagem foi enviada' });
+            }
+            
+            // Faz o upload da imagem para o Cloudinary
+            const result = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream({
+                    folder: "recipes"
+                    },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+            });
+        
+            image = result.secure_url;
+        
             const newRecipe = await prismaClient.recipe.create({
-                data: { name, category, ingredients: formattedIngredients, steps },
+                data: { name, category, ingredients: formattedIngredients, steps, image },
             });
             return res.status(201).json(newRecipe);
         } catch (error){
@@ -67,9 +90,30 @@ export class RecipeController {
                 return res.status(404).json({ error: "Receita não encontrada" });
             }
 
+            let image = recipe.image;
+
+            if (!req.file || !req.file.buffer) {
+                return res.status(400).json({ erro: 'Arquivo não encontrado', mensagem: 'Nenhuma imagem foi enviada' });
+            }
+
+            // Faz o upload da nova imagem para o Cloudinary caso exista
+            const result = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream({
+                    folder: "recipes"
+                    },
+                    (error, result) => {
+                        if (error) return reject(error);
+                        resolve(result);
+                    }
+                );
+                streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+            });
+        
+            image = result.secure_url;
+
             const updatedRecipe = await prismaClient.recipe.update ({
                 where: { id },
-                data: { name, category, ingredients: formattedIngredients, steps }            
+                data: { name, category, ingredients: formattedIngredients, steps, image }            
             });
             return res.status(200).json(updatedRecipe);
         } catch (error) {

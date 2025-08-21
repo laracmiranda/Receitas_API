@@ -29,7 +29,8 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "nodemon": "^3.1.10",
-    "react-router-dom": "^7.8.0"
+    "react-router-dom": "^7.8.0",
+    "streamifier": "^0.1.1"
   },
   "devDependencies": {
     "prisma": "^6.13.0"

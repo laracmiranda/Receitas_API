@@ -12,6 +12,7 @@ model User {
   name      String     @db.VarChar(100)
   email     String     @unique @db.VarChar(150)
   password  String
+  recipes   Recipe[]
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[] // Relação com a tabela de comentários
 
@@ -29,6 +30,9 @@ model Recipe {
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[] // Relação com a tabela de comentários
 
+  userId      String
+  user        User @relation(fields: [userId], references: [id])
+  
   @@map("recipes")
 }
 
