@@ -5,6 +5,7 @@ import { upload } from "../middlewares/upload.js";
 import { LoginController } from "../controllers/LoginController.js";
 import authenticate from "../middlewares/authenticate.js";
 import { CommentController } from "../controllers/CommentController.js";
+import { FavoriteController } from "../controllers/FavoriteController.js";
 
 const router = express.Router();
 
@@ -12,6 +13,7 @@ const userController = new UserController();
 const recipeController = new RecipeController();
 const loginController = new LoginController();
 const commentController = new CommentController();
+const favoriteController = new FavoriteController();
 
 // User routes
 router.get("/users", userController.findAllUsers);
@@ -32,6 +34,11 @@ router.delete("/recipes/:id", authenticate, recipeController.deleteRecipe);
 router.get("/recipes/:recipeId/comments", commentController.findCommentsByRecipe);
 router.post("/recipes/:recipeId/comments/:id", authenticate, commentController.createComment);
 router.delete("/recipes/:recipeId/comments/:id", authenticate, commentController.deleteComment);
+
+// Favorite routes
+router.get("/favorites", authenticate, favoriteController.findFavorites);
+router.post("/recipes/:recipeId/favorite", authenticate, favoriteController.addFavorite);
+router.delete("/favorites/:id", authenticate, favoriteController.deleteFavorite);
 
 // Login routes
 router.post("/login", loginController.login)
