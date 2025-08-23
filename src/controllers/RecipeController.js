@@ -45,7 +45,7 @@ export class RecipeController {
 
     async createRecipe (req, res){
         const { name, category, ingredients, steps } = req.body;
-        const userId = req.user?.id;
+        const userId = req.userId
 
         // Se veio string, transforma em array separando por vírgula
         let formattedIngredients = ingredients;
