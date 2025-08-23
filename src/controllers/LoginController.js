@@ -16,7 +16,7 @@ export class LoginController {
         }
 
         // Compara a senha vinda do body com o hash no banco
-        const userValid = bcrypt.compareSync(password, user.password);
+        const userValid = bcrypt.compare(password, user.password);
 
         if (!userValid){
             return res.status(401).json({ error: "Credenciais inválidas"})
@@ -25,6 +25,12 @@ export class LoginController {
         const payload = { userId: user.id }
         const token = jwt.sign(payload, process.env.SECRET_JWT, { expiresIn: '1h' })
 
-        return res.status(200).json({...payload, token})
+        return res.status(200).json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name
+            }
+        })
     }
 }

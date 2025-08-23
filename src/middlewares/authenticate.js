@@ -1,24 +1,25 @@
 import jwt from "jsonwebtoken";
 
-export default function (request, response, next){
-    const { authorization } = request.headers;
+export default function authenticate(req, res, next){
+    const authHeader = req.headers.authorization;
 
-    // Verifica se o usuário está autenticado 
-    if (!authorization){
-        return response.status(401).json({"error:": "Token não encontrado"})
+    if (!authHeader || !authHeader.startsWith("Bearer ")){
+        return response.status(401).json({"error:": "Token não encontrado ou malformado"})
     }
 
-    try {
-        const token = authorization.replace("Bearer ", "");
-        const { userId } = jwt.decode(token, process.env.SECRET_JWT);
+    const token = authHeader.replace("Bearer ", "");
 
-        if (!userId){
+    try {
+        const decoded = jwt.verify(token, process.env.SECRET_JWT);
+
+        if (!decoded.userId){
           return response.status(401).json({"error:": "Usuário não encontrado"})  
         }
 
-        next();
+        req.userId = decoded.userId;
+        return next();
 
     } catch(error){
-        return response.status(401).json({"error:": "Token inválido"})
+        return response.status(401).json({"error:": "Token inválido ou expirado"})
     }
 }

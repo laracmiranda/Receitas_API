@@ -31,8 +31,11 @@ export class RecipeController {
 
     async findRecipeByUser(req, res){
         try {
+            const userId = req.userId
+
             const recipes = await prismaClient.recipe.findMany({
-                include: {user: true}
+                where: { userId },
+                orderBy: { creationDate: "desc" }
             });
             return res.status(200).json(recipes);
         } catch(error){
