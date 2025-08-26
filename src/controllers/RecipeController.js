@@ -84,7 +84,7 @@ export class RecipeController {
             return res.json(500).json({ error: "Erro interno do servidor"});
         }
     }
-
+    
     async updateRecipe (req, res){
         const { id } = req.params;
         const { name, category, ingredients, steps } = req.body;
@@ -107,24 +107,22 @@ export class RecipeController {
             
             let image = recipe.image;
 
-            if (!req.file || !req.file.buffer) {
-                return res.status(400).json({ erro: 'Arquivo não encontrado', mensagem: 'Nenhuma imagem foi enviada' });
-            }
-
             // Faz o upload da nova imagem para o Cloudinary caso exista
-            const result = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream({
-                    folder: "recipes"
-                    },
-                    (error, result) => {
-                        if (error) return reject(error);
-                        resolve(result);
-                    }
-                );
-                streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
-            });
-        
-            image = result.secure_url;
+            if (req.file && req.file.buffer) {
+                const result = await new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream({
+                        folder: "recipes"
+                        },
+                        (error, result) => {
+                            if (error) return reject(error);
+                            resolve(result);
+                        }
+                    );
+                    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+                });
+            
+                image = result.secure_url;
+            }
 
             const updatedRecipe = await prismaClient.recipe.update ({
                 where: { id },

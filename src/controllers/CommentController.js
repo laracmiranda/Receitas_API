@@ -1,6 +1,4 @@
 import { prismaClient } from "../../database/PrismaClient.js";
-import cloudinary from "../../config/cloudinary.js";
-import streamifier from "streamifier";
 
 export class CommentController {
 
