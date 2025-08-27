@@ -15,6 +15,7 @@ model User {
   recipes   Recipe[]
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[] // Relação com a tabela de comentários
+  resetpassword  ResetPasswordToken[] // Relação com a tabela de redefinição de senha
 
   @@map("users")
 }
@@ -58,4 +59,13 @@ model Comment {
   recipe       Recipe     @relation(fields: [recipeId], references: [id])
 
   @@map("comments")
+}
+
+model ResetPasswordToken {
+  id           String     @id @default(uuid())
+  token        String     @unique
+  expiresAt    DateTime
+  createdAt    DateTime   @default(now())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
 }
