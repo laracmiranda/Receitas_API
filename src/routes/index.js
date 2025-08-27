@@ -2,7 +2,7 @@ import express from "express";
 import { UserController } from "../controllers/UserController.js";
 import { RecipeController } from "../controllers/RecipeController.js";
 import { upload } from "../middlewares/upload.js";
-import { LoginController } from "../controllers/LoginController.js";
+import { AuthController} from "../controllers/AuthController.js";
 import authenticate from "../middlewares/authenticate.js";
 import { CommentController } from "../controllers/CommentController.js";
 import { FavoriteController } from "../controllers/FavoriteController.js";
@@ -11,7 +11,7 @@ const router = express.Router();
 
 const userController = new UserController();
 const recipeController = new RecipeController();
-const loginController = new LoginController();
+const authController = new AuthController();
 const commentController = new CommentController();
 const favoriteController = new FavoriteController();
 
@@ -40,7 +40,9 @@ router.get("/favorites", authenticate, favoriteController.findFavorites);
 router.post("/recipes/:recipeId/favorite", authenticate, favoriteController.addFavorite);
 router.delete("/favorites/:id", authenticate, favoriteController.deleteFavorite);
 
-// Login routes
-router.post("/login", loginController.login)
+// Auth routes
+router.post("/auth/login", authController.login)
+router.post("/auth/request-reset", authController.requestPasswordReset)
+router.post("/auth/reset-password/:token", authController.resetPassword)
 
 export { router }

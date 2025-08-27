@@ -21,11 +21,12 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 ## 📲 Funcionalidades
 
 - CRUD de usuários e receitas
-- Autenticação de usuários com JWT
+- Autenticação de usuários com `JWT`
 - Proteção de rotas com Bearer Token
+- Redefinição de senha com token + email com `nodemailer`
 - Usuários podem adicionar comentários nas receitas
 - Usuários podem favoritas as receitas que mais gostaram
-- Upload de imagens com cloudinary
+- Upload de imagens com `Cloudinary`
 
 ---
 
@@ -167,7 +168,6 @@ Sugestão de fluxo no Insomnia ou Postman:
 ---
 
 ## 🔴 Em andamento
-
-- Redefinição de senha para usuários com token via e-mail
+- ~Redefinição de senha para usuários com token via e-mail~ ✅
 - Deploy
 - Documentação
