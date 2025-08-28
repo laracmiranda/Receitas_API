@@ -10,7 +10,7 @@ export class UserController {
             });
             return res.status(200).json(users);
         } catch(error){
-            return res.json(500).json({ error: "Erro interno do servidor"});
+            return res.status(500).json({ error: "Erro interno do servidor"});
         }
     }
 
@@ -24,7 +24,7 @@ export class UserController {
             });
             return res.status(200).json(user);
         } catch (error) {
-            return res.json(500).json({ error: "Erro interno do servidor"});
+            return res.status(500).json({ error: "Erro interno do servidor"});
         }
     }
 
@@ -46,7 +46,7 @@ export class UserController {
             });
             return res.status(201).json(newUser);
         } catch (error){
-            return res.json(500).json({ error: "Erro interno do servidor"});
+            return res.status(500).json({ error: "Erro interno do servidor"});
         }
     }
 
