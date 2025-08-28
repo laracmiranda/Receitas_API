@@ -62,7 +62,7 @@ export class AuthController {
                 user.email,
                 "Redefinição de senha",
                 `
-                <h2> Olá, ${user.name} </h2>
+                <h2> Olá, ${user.name}, </h2>
                 <p> Você solicitou redefinição de senha. Clique no link abaixo para redefinir: </p>
                 <a href="http://localhost:${PORT}/reset-password/${resetToken}">
                    👉 Redefinir minha senha
