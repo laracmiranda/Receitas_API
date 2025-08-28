@@ -52,7 +52,7 @@ export class UserController {
 
     async updateUser (req, res){
         const { id } = req.params;
-        const { name, email, password } = req.body;
+        const { name, email } = req.body;
 
         try {
             const user = await prismaClient.user.findUnique({
@@ -69,22 +69,47 @@ export class UserController {
                 return res.status(409).json({ error: "Email já está em uso"});
             }
 
-            const dataToUpdate = { name, email};
-
-            if (password){
-                const hashedPassword = bcrypt.hashSync(password, 10);
-                dataToUpdate.password = hashedPassword;
-            }
-
             const updatedUser = await prismaClient.user.update ({
                 where: { id },
-                data: dataToUpdate,
+                data: { name, email },
                 select: { id: true, name: true, email: true }
             });
             return res.status(200).json(updatedUser);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: "Erro interno do servidor"});
+        }
+    }
+
+    async changePassword(req, res){
+        const { id } = req.params;
+        const { currentPassword, newPassword } = req.body;
+
+        try {
+            const user = await prismaClient.user.findUnique({
+                where: { id }
+            })
+
+            if (!user) {
+                return res.status(404).json({ error: "Usuário não encontrado" });
+            }
+
+            const validPassword = await bcrypt.compare(currentPassword, user.password);
+
+            if (!validPassword){
+                return res.status(401).json({ error: "Senha atual incorreta" });
+            }
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            await prismaClient.user.update({
+                where: { id },
+                data: { password: hashedPassword }
+            });
+
+            return res.status(200).json({ message: "Senha atualizada com sucesso!" });
+        } catch(error){
+            return res.status(500).json({ error: "Erro interno do servidor" });
         }
     }
 
