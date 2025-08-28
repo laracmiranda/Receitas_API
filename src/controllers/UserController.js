@@ -1,5 +1,6 @@
 import { prismaClient } from "../../database/PrismaClient.js";
 import bcrypt, { hash } from "bcryptjs";
+import { changePasswordSchema, createUserSchema, updateUserSchema } from "../validators/userValidator.js";
 
 export class UserController {
 
@@ -29,6 +30,11 @@ export class UserController {
     }
 
     async createUser (req, res){
+        const { error } = createUserSchema.validate(req.body);
+        if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+        }
+
         const { name, email, password } = req.body;
 
         try {
@@ -52,6 +58,12 @@ export class UserController {
 
     async updateUser (req, res){
         const { id } = req.params;
+
+        const { error } = updateUserSchema.validate(req.body);
+        if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+        }
+
         const { name, email } = req.body;
 
         try {
@@ -83,6 +95,12 @@ export class UserController {
 
     async changePassword(req, res){
         const { id } = req.params;
+
+        const { error } = changePasswordSchema.validate(req.body);
+        if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+        }
+
         const { currentPassword, newPassword } = req.body;
 
         try {
