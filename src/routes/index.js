@@ -20,6 +20,7 @@ router.get("/users", userController.findAllUsers);
 router.get("/user/:id", userController.findUser);
 router.post("/users", userController.createUser);
 router.put("/users/:id", authenticate, userController.updateUser);
+router.put("/users/:id/change-password", authenticate, userController.changePassword);
 router.delete("/users/:id", authenticate, userController.deleteUser);
 
 // Recipe routes

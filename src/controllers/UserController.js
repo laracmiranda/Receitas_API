@@ -1,5 +1,6 @@
 import { prismaClient } from "../../database/PrismaClient.js";
 import bcrypt, { hash } from "bcryptjs";
+import { changePasswordSchema, createUserSchema, updateUserSchema } from "../validators/userValidator.js";
 
 export class UserController {
 
@@ -10,7 +11,7 @@ export class UserController {
             });
             return res.status(200).json(users);
         } catch(error){
-            return res.json(500).json({ error: "Erro interno do servidor"});
+            return res.status(500).json({ error: "Erro interno do servidor"});
         }
     }
 
@@ -24,11 +25,16 @@ export class UserController {
             });
             return res.status(200).json(user);
         } catch (error) {
-            return res.json(500).json({ error: "Erro interno do servidor"});
+            return res.status(500).json({ error: "Erro interno do servidor"});
         }
     }
 
     async createUser (req, res){
+        const { error } = createUserSchema.validate(req.body);
+        if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+        }
+
         const { name, email, password } = req.body;
 
         try {
@@ -46,13 +52,19 @@ export class UserController {
             });
             return res.status(201).json(newUser);
         } catch (error){
-            return res.json(500).json({ error: "Erro interno do servidor"});
+            return res.status(500).json({ error: "Erro interno do servidor"});
         }
     }
 
     async updateUser (req, res){
         const { id } = req.params;
-        const { name, email, password } = req.body;
+
+        const { error } = updateUserSchema.validate(req.body);
+        if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+        }
+
+        const { name, email } = req.body;
 
         try {
             const user = await prismaClient.user.findUnique({
@@ -69,22 +81,53 @@ export class UserController {
                 return res.status(409).json({ error: "Email já está em uso"});
             }
 
-            const dataToUpdate = { name, email};
-
-            if (password){
-                const hashedPassword = bcrypt.hashSync(password, 10);
-                dataToUpdate.password = hashedPassword;
-            }
-
             const updatedUser = await prismaClient.user.update ({
                 where: { id },
-                data: dataToUpdate,
+                data: { name, email },
                 select: { id: true, name: true, email: true }
             });
             return res.status(200).json(updatedUser);
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: "Erro interno do servidor"});
+        }
+    }
+
+    async changePassword(req, res){
+        const { id } = req.params;
+
+        const { error } = changePasswordSchema.validate(req.body);
+        if (error) {
+        return res.status(400).json({ error: error.details[0].message });
+        }
+
+        const { currentPassword, newPassword } = req.body;
+
+        try {
+            const user = await prismaClient.user.findUnique({
+                where: { id }
+            })
+
+            if (!user) {
+                return res.status(404).json({ error: "Usuário não encontrado" });
+            }
+
+            const validPassword = await bcrypt.compare(currentPassword, user.password);
+
+            if (!validPassword){
+                return res.status(401).json({ error: "Senha atual incorreta" });
+            }
+
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            await prismaClient.user.update({
+                where: { id },
+                data: { password: hashedPassword }
+            });
+
+            return res.status(200).json({ message: "Senha atualizada com sucesso!" });
+        } catch(error){
+            return res.status(500).json({ error: "Erro interno do servidor" });
         }
     }
 

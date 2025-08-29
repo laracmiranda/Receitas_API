@@ -1,4 +1,5 @@
 import { prismaClient } from "../../database/PrismaClient.js";
+import { paginate } from "../../utils/pagination.js";
 
 export class CommentController {
 
@@ -6,9 +7,15 @@ export class CommentController {
         const { recipeId } = req.params;
 
         try {
-            const comments = await prismaClient.comment.findMany({
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 8;
+            const sort = req.query.sort || "desc";
+
+            const comments = await paginate(prismaClient.comment, {
                 where: { recipeId },
-                orderBy: { creationDate: "desc" },
+                page,
+                limit,
+                orderBy: { creationDate: sort },
                 include: {
                     user: { select: { id: true, name: true } }
                 }

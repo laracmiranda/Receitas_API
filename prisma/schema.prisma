@@ -12,9 +12,9 @@ model User {
   name      String     @db.VarChar(100)
   email     String     @unique @db.VarChar(150)
   password  String
-  recipes   Recipe[]
+  recipes   Recipe[] // Relação com tabela de receitas
   favorites Favorite[] // Relação com tabela de favoritos
-  comments  Comment[] // Relação com a tabela de comentários
+  comments  Comment[]  // Relação com a tabela de comentários
   resetpassword  ResetPasswordToken[] // Relação com a tabela de redefinição de senha
 
   @@map("users")
@@ -31,8 +31,8 @@ model Recipe {
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[] // Relação com a tabela de comentários
 
-  userId      String
-  user        User @relation(fields: [userId], references: [id])
+  userId      String?
+  user        User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   
   @@map("recipes")
 }
@@ -42,8 +42,8 @@ model Favorite {
   creationDate DateTime   @default(now())
   userId       String
   recipeId     String
-  user         User       @relation(fields: [userId], references: [id])
-  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, recipeId]) // Impede que usuário favorite duplicado
   @@map("favorites")
@@ -53,10 +53,10 @@ model Comment {
   id           String     @id @default(uuid())
   creationDate DateTime   @default(now())
   content      String     @db.Text
-  userId       String
+  userId       String?
   recipeId     String
-  user         User       @relation(fields: [userId], references: [id])
-  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@map("comments")
 }
@@ -67,5 +67,5 @@ model ResetPasswordToken {
   expiresAt    DateTime
   createdAt    DateTime   @default(now())
   userId       String
-  user         User       @relation(fields: [userId], references: [id])
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

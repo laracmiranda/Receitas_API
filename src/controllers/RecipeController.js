@@ -1,12 +1,26 @@
 import { prismaClient } from "../../database/PrismaClient.js";
 import cloudinary from "../../config/cloudinary.js";
 import streamifier from "streamifier";
+import { paginate } from "../../utils/pagination.js";
 
 export class RecipeController {
 
     async findAllRecipes (req, res){
         try {
-            const recipes = await prismaClient.recipe.findMany();
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const orderBy = req.query.orderBy || "creationDate";
+            const sort = req.query.sort || "desc";
+
+            const recipes = await paginate(prismaClient.recipe, {
+                page,
+                limit, 
+                orderBy: { [orderBy]: sort },
+                include: {
+                    user: { select: { id: true, name: true } },
+                },
+            });
+
             return res.status(200).json(recipes);
         } catch(error){
             return res.json(500).json({ error: "Erro interno do servidor"});
@@ -32,11 +46,20 @@ export class RecipeController {
     async findRecipeByUser(req, res){
         try {
             const userId = req.userId
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const sort = req.query.sort || "desc";
 
-            const recipes = await prismaClient.recipe.findMany({
+            const recipes = await paginate(prismaClient.recipe, {
                 where: { userId },
-                orderBy: { creationDate: "desc" }
+                page,
+                limit,
+                orderBy: { creationDate: sort },
+                include: {
+                    user: { select: { id: true, name: true } },
+                },
             });
+
             return res.status(200).json(recipes);
         } catch(error){
             return res.json(500).json({ error: "Erro interno do servidor"});
