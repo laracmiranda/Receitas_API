@@ -1,4 +1,5 @@
 import { prismaClient } from "../../database/PrismaClient.js";
+import { paginate } from "../../utils/pagination.js";
 
 export class FavoriteController {
 
@@ -6,9 +7,15 @@ export class FavoriteController {
         const userId = req.userId;
 
         try {
-            const favorites = await prismaClient.favorite.findMany({
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 10;
+            const sort = req.query.sort || "desc";
+
+            const favorites = await paginate(prismaClient.favorite, {
                 where: { userId },
-                orderBy: { creationDate: "desc" },
+                page,
+                limit,
+                orderBy: { creationDate: sort },
                 include: {
                     recipe: true
                 }
