@@ -110,6 +110,7 @@ export class RecipeController {
     
     async updateRecipe (req, res){
         const { id } = req.params;
+        const userId = req.userId;
         const { name, category, ingredients, steps } = req.body;
 
         // Se veio string, transforma em array separando por vírgula
@@ -128,6 +129,10 @@ export class RecipeController {
                 return res.status(404).json({ error: "Receita não encontrada" });
             }
             
+            if (recipe.userId !== userId){
+                return res.status(403).json({ error: "Você não tem permissão para editar esta receita"} )
+            }
+
             let image = recipe.image;
 
             // Faz o upload da nova imagem para o Cloudinary caso exista
@@ -160,6 +165,7 @@ export class RecipeController {
 
     async deleteRecipe(req, res){
         const { id } = req.params;
+        const userId = req.userId;
 
         try {
            const recipe = await prismaClient.recipe.findUnique({
@@ -170,8 +176,12 @@ export class RecipeController {
                 return res.status(404).json({ error: "Receita não encontrada" });
             }
             
+            if (recipe.userId !== userId){
+                return res.status(403).json({ error: "Você não tem permissão para excluir esta receita"} )
+            }
+
             await prismaClient.recipe.delete({ where: { id }});
-            return res.status(204).send("Receita deletada com sucesso");
+            return res.status(204).json({message: "Receita deletada com sucesso"});
 
         } catch (error) {
             return res.status(500).json({ error: "Erro interno do servidor"});
