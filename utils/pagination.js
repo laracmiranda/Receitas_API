@@ -1,4 +1,4 @@
-/**
+/** Como funciona:
  * @param {Object} model - O model Prisma (ex: prismaClient.recipe)
  * @param {Object} options - Opções da query
  * @param {Object} [options.where] - Filtros
@@ -9,6 +9,7 @@
  * @returns {Object} resultado paginado: { page, limit, total, totalPages, data }
  */
 
+// Função para paginação
 export async function paginate(model, { where = {}, orderBy = {}, page = 1, limit = 10, include = {} }) {
   const skip = (page - 1) * limit;
 

@@ -23,6 +23,30 @@ export class UserController {
                 where: { id },
                 select: { id: true, name: true, email: true }
             });
+
+            if (!user) {
+                return res.status(404).json({ error: "Usuário não encontrado"} );
+            }
+
+            return res.status(200).json(user);
+        } catch (error) {
+            return res.status(500).json({ error: "Erro interno do servidor"});
+        }
+    }
+
+    async findUserAuthenticated (req, res){
+        const userId = req.userId;
+
+        try {
+            const user = await prismaClient.user.findUnique({
+                where: { id: userId },
+                select: { id: true, name: true, email: true }
+            });
+
+            if (!user) {
+                return res.status(404).json({ error: "Usuário não encontrado"} );
+            }
+            
             return res.status(200).json(user);
         } catch (error) {
             return res.status(500).json({ error: "Erro interno do servidor"});
@@ -58,6 +82,11 @@ export class UserController {
 
     async updateUser (req, res){
         const { id } = req.params;
+        const userId = req.userId;
+
+        if (id != userId) {
+            return res.status(403).json({ error: "Você não tem permissão para editar este usuário"} );
+        }
 
         const { error } = updateUserSchema.validate(req.body);
         if (error) {
@@ -95,6 +124,11 @@ export class UserController {
 
     async changePassword(req, res){
         const { id } = req.params;
+        const userId = req.userId;
+
+        if (id != userId) {
+            return res.status(403).json({ error: "Você não tem permissão para editar este usuário"} );
+        }
 
         const { error } = changePasswordSchema.validate(req.body);
         if (error) {
@@ -133,7 +167,12 @@ export class UserController {
 
     async deleteUser(req, res){
         const { id } = req.params;
+        const userId = req.userId;
 
+        if (id != userId) {
+            return res.status(403).json({ error: "Você não tem permissão para editar este usuário"} );
+        }
+        
         try {
             const user = await prismaClient.user.findUnique({ where: { id } });
 

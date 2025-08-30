@@ -18,28 +18,29 @@ const favoriteController = new FavoriteController();
 // User routes
 router.get("/users", userController.findAllUsers);
 router.get("/user/:id", userController.findUser);
+router.get("/user/me", userController.findUserAuthenticated);
 router.post("/users", userController.createUser);
-router.put("/users/:id", authenticate, userController.updateUser);
-router.put("/users/:id/change-password", authenticate, userController.changePassword);
-router.delete("/users/:id", authenticate, userController.deleteUser);
+router.put("/users/me", authenticate, userController.updateUser);
+router.put("/users/me/change-password", authenticate, userController.changePassword);
+router.delete("/users/me", authenticate, userController.deleteUser);
 
 // Recipe routes
 router.get("/recipes", recipeController.findAllRecipes);
 router.get("/recipe/:id", recipeController.findRecipe);
-router.get("/recipes/user", authenticate, recipeController.findRecipeByUser);
+router.get("/users/me/recipes", authenticate, recipeController.findRecipeByUser);
 router.post("/recipes", authenticate, upload.single("image"), recipeController.createRecipe);
 router.put("/recipes/:id", authenticate, upload.single("image"), recipeController.updateRecipe);
 router.delete("/recipes/:id", authenticate, recipeController.deleteRecipe);
 
 // Comment routes 
 router.get("/recipes/:recipeId/comments", commentController.findCommentsByRecipe);
-router.post("/recipes/:recipeId/comments/:id", authenticate, commentController.createComment);
+router.post("/recipes/:recipeId/comments", authenticate, commentController.createComment);
 router.delete("/recipes/:recipeId/comments/:id", authenticate, commentController.deleteComment);
 
 // Favorite routes
 router.get("/favorites", authenticate, favoriteController.findFavorites);
 router.post("/recipes/:recipeId/favorite", authenticate, favoriteController.addFavorite);
-router.delete("/favorites/:id", authenticate, favoriteController.deleteFavorite);
+router.delete("/recipes/:recipeId/favorite", authenticate, favoriteController.deleteFavorite);
 
 // Auth routes
 router.post("/auth/login", authController.login)

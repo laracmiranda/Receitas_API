@@ -53,11 +53,13 @@ export class FavoriteController {
     }
 
     async deleteFavorite(req, res){
-        const { id } = req.params;
+        const { recipeId } = req.params;
         const userId = req.userId;
 
         try {
-            const favorite = await prismaClient.favorite.findUnique({ where : { id } });
+            const favorite = await prismaClient.favorite.findUnique({ 
+                where : { userId_recipeId: { userId, recipeId } } 
+            });
 
             if (!favorite){
                 return res.status(404).json({ error: "Favorito não encontrado "});
@@ -67,7 +69,9 @@ export class FavoriteController {
                 return res.status(403).json({ error: "Não autorizado" });
             }
 
-            await prismaClient.favorite.delete({ where: { id } });
+            await prismaClient.favorite.delete({ 
+                where: { userId_recipeId: { userId, recipeId } } 
+            });
 
             return res.status(200).json({ message: "Receita removida dos favoritos"});
         } catch(error){

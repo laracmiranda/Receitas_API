@@ -29,8 +29,9 @@ export class CommentController {
     }
 
     async createComment(req, res){
-          const { content, recipeId } = req.body;
           const userId = req.userId;
+          const { content } = req.body;
+          const { recipeId } = req.params;
 
           try {
               if (!content){
