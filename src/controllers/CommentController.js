@@ -16,7 +16,6 @@ export class CommentController {
       
       return res.status(200).json(comments);
     } catch (error) {
-      console.error(error);
       return res.status(500).json({ error: "Erro ao buscar comentários" });
     }
   }
@@ -33,7 +32,6 @@ export class CommentController {
 
       return res.status(201).json(comment);
     } catch (error) {
-      console.error(error);
       return res.status(500).json({ error: "Erro ao criar comentário" });
     }
   }
@@ -50,7 +48,6 @@ export class CommentController {
       if (error.message === "NOT_FOUND") return res.status(404).json({ error: "Comentário não encontrado" });
       if (error.message === "FORBIDDEN") return res.status(403).json({ error: "Você não pode deletar esse comentário" });
 
-      console.error(error);
       return res.status(500).json({ error: "Erro ao deletar comentário" });
     }
   }
