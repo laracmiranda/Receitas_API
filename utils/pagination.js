@@ -13,10 +13,9 @@
 export async function paginate(model, { where = {}, orderBy = {}, page = 1, limit = 10, include = {} }) {
   const skip = (page - 1) * limit;
 
-  const [data, total] = await Promise.all([
-    model.findMany({ where, orderBy, skip, take: limit, include }),
-    model.count({ where }),
-  ]);
+  // Chama findMany e count do "model" passado (repository customizado)
+  const data = await model.findMany({ where, orderBy, skip, take: limit, include });
+  const total = await model.count(where);
 
   return {
     page,
