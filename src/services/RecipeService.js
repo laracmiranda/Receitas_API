@@ -1,4 +1,3 @@
-// src/services/RecipeService.js
 import { uploadImageToCloudinary } from "../../utils/uploadImage.js";
 
 export class RecipeService {
