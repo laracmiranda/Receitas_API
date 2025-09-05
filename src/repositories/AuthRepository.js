@@ -19,7 +19,7 @@ export class AuthRepository {
     return prismaClient.resetPasswordToken.delete({ where: { id } });
   }
 
-  async updateUserPassword(userId, hashedPassword) {
+  async updatePassword(userId, hashedPassword) {
     return prismaClient.user.update({
       where: { id: userId },
       data: { password: hashedPassword },
