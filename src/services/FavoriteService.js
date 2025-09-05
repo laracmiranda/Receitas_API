@@ -1,4 +1,5 @@
 import { paginate } from "../../utils/pagination.js";
+import { NotFoundError, ForbiddenError, ConflictError } from "../errors/AppError.js";
 
 export class FavoriteService {
   constructor(favoriteRepository) {
@@ -22,15 +23,16 @@ export class FavoriteService {
 
   async addFavorite(userId, recipeId) {
     const exists = await this.favoriteRepository.findUnique(userId, recipeId);
-    if (exists) throw new Error("ALREADY_EXISTS");
+    if (exists) throw new ConflictError("Receita já está nos favoritos");
 
     return this.favoriteRepository.create({ userId, recipeId });
   }
 
   async deleteFavorite(userId, recipeId) {
     const favorite = await this.favoriteRepository.findUnique(userId, recipeId);
-    if (!favorite) throw new Error("NOT_FOUND");
-    if (favorite.userId !== userId) throw new Error("FORBIDDEN");
+    
+    if (!favorite) throw new NotFoundError("Favorito não encontrado");
+    if (favorite.userId !== userId) throw new ForbiddenError("Não autorizado");
 
     return this.favoriteRepository.delete(userId, recipeId);
   }

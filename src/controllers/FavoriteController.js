@@ -5,7 +5,7 @@ const favoriteRepository = new FavoriteRepository();
 const favoriteService = new FavoriteService(favoriteRepository);
 
 export class FavoriteController {
-  async findFavorites(req, res) {
+  findFavorites = async (req, res, next) => {
     try {
       const userId = req.userId;
       const page = parseInt(req.query.page) || 1;
@@ -16,11 +16,11 @@ export class FavoriteController {
       
       return res.status(200).json(favorites);
     } catch (error) {
-      return res.status(500).json({ error: "Erro ao buscar receitas favoritadas" });
+      next(error);
     }
-  }
+  };
 
-  async addFavorite(req, res) {
+  addFavorite = async (req, res, next) => {
     try {
       const userId = req.userId;
       const { recipeId } = req.params;
@@ -29,15 +29,11 @@ export class FavoriteController {
 
       return res.status(201).json(favorite);
     } catch (error) {
-      if (error.message === "ALREADY_EXISTS") {
-        return res.status(400).json({ error: "Receita já está nos favoritos" });
-      }
-
-      return res.status(500).json({ error: "Erro ao adicionar favorito" });
+      next(error);
     }
-  }
+  };
 
-  async deleteFavorite(req, res) {
+  deleteFavorite = async (req, res, next) => {
     try {
       const userId = req.userId;
       const { recipeId } = req.params;
@@ -46,15 +42,7 @@ export class FavoriteController {
 
       return res.status(200).json({ message: "Receita removida dos favoritos" });
     } catch (error) {
-      if (error.message === "NOT_FOUND") {
-        return res.status(404).json({ error: "Favorito não encontrado" });
-      }
-
-      if (error.message === "FORBIDDEN") {
-        return res.status(403).json({ error: "Não autorizado" });
-      }
-
-      return res.status(500).json({ error: "Erro ao remover favorito" });
+      next(error);
     }
-  }
+  };
 }
