@@ -5,7 +5,7 @@ const commentRepository = new CommentRepository();
 const commentService = new CommentService(commentRepository);
 
 export class CommentController {
-  async findCommentsByRecipe(req, res) {
+  findCommentsByRecipe = async (req, res, next) => {
     try {
       const { recipeId } = req.params;
       const page = parseInt(req.query.page) || 1;
@@ -16,27 +16,25 @@ export class CommentController {
       
       return res.status(200).json(comments);
     } catch (error) {
-      return res.status(500).json({ error: "Erro ao buscar comentários" });
+      next(error);
     }
-  }
+  };
 
-  async createComment(req, res) {
+  createComment = async (req, res, next) => {
     try {
       const userId = req.userId;
       const { content } = req.body;
       const { recipeId } = req.params;
 
-      if (!content) return res.status(400).json({ error: "Comentário não pode estar vazio" });
-
       const comment = await commentService.createComment({ content, recipeId, userId });
 
       return res.status(201).json(comment);
     } catch (error) {
-      return res.status(500).json({ error: "Erro ao criar comentário" });
+      next(error);
     }
-  }
+  };
 
-  async deleteComment(req, res) {
+  deleteComment = async (req, res, next) => {
     try {
       const { id } = req.params;
       const userId = req.userId;
@@ -45,10 +43,7 @@ export class CommentController {
 
       return res.status(200).json({ message: "Comentário deletado com sucesso" });
     } catch (error) {
-      if (error.message === "NOT_FOUND") return res.status(404).json({ error: "Comentário não encontrado" });
-      if (error.message === "FORBIDDEN") return res.status(403).json({ error: "Você não pode deletar esse comentário" });
-
-      return res.status(500).json({ error: "Erro ao deletar comentário" });
+      next(error);
     }
-  }
+  };
 }

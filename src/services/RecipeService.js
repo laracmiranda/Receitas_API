@@ -1,4 +1,5 @@
 import { uploadImageToCloudinary } from "../../utils/uploadImage.js";
+import { ForbiddenError, NotFoundError,  } from "../errors/AppError.js";
 
 export class RecipeService {
   constructor(recipeRepository) {
@@ -28,7 +29,9 @@ export class RecipeService {
   }
 
   async getRecipeById(id) {
-    return this.recipeRepository.findUnique(id);
+    const recipe = await this.recipeRepository.findUnique(id);
+    if (!recipe) throw new NotFoundError("Receita não encontrada");
+    return recipe;
   }
 
   async getRecipesByUser(userId, { page = 1, limit = 10, sort = "desc" }) {
@@ -77,8 +80,8 @@ export class RecipeService {
 
   async updateRecipe(id, userId, { name, category, ingredients, steps, file }) {
     const recipe = await this.recipeRepository.findUnique(id);
-    if (!recipe) throw new Error("NOT_FOUND");
-    if (recipe.userId !== userId) throw new Error("FORBIDDEN");
+    if (!recipe) throw new NotFoundError("Receita não encontrada");
+    if (recipe.userId !== userId) throw new ForbiddenError("Você não tem permissão para editar esta receita");
 
     let formattedIngredients = ingredients;
     if (typeof ingredients === "string") {
@@ -101,8 +104,8 @@ export class RecipeService {
 
   async deleteRecipe(id, userId) {
     const recipe = await this.recipeRepository.findUnique(id);
-    if (!recipe) throw new Error("NOT_FOUND");
-    if (recipe.userId !== userId) throw new Error("FORBIDDEN");
+    if (!recipe) throw new NotFoundError("Receita não encontrada");
+    if (recipe.userId !== userId) throw new ForbiddenError("Você não tem permissão para excluir esta receita");
 
     return this.recipeRepository.delete(id);
   }

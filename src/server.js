@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from 'dotenv';
 
 import router from "./routes/index.js"
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 dotenv.config();
 
@@ -31,6 +32,8 @@ app.use('/api/v1', router);
 app.get('/', (req, res) => {
     res.send('API funcionando! 🤟');
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
