@@ -24,7 +24,7 @@ export class RecipeController {
     try {
       const { id } = req.params;
       const recipe = await recipeService.getRecipeById(id);
-      
+
       return res.status(200).json(recipe);
     } catch (error) {
       next(error);
@@ -93,7 +93,7 @@ export class RecipeController {
 
       await recipeService.deleteRecipe(id, userId);
 
-      return res.status(204).json({ message: "Receita deletada com sucesso" });
+      return res.status(200).json({ message: "Receita deletada com sucesso" });
     } catch (error) {
       next(error);
     }
