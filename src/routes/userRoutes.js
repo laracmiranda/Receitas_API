@@ -11,8 +11,8 @@ const favoriteController = new FavoriteController();
 
 // Rotas de Perfil
 router.get("/", userController.findAllUsers);
-router.get("/:id", userController.findUser);
 router.get("/me", authenticate, userController.findUserAuthenticated);
+router.get("/:id", userController.findUser);
 router.post("/", userController.createUser);
 router.put("/me", authenticate, userController.updateUser);
 router.delete("/me", authenticate, userController.deleteUser);

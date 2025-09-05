@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
+import { UnauthorizedError } from "../errors/AppError.js";
 
 export default function authenticate(req, res, next){
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")){
-        return res.status(401).json({"error:": "Token não encontrado ou malformado"})
+        return next(new UnauthorizedError("Token não encontrado ou malformado"));
     }
 
     const token = authHeader.replace("Bearer ", "");
@@ -13,13 +14,13 @@ export default function authenticate(req, res, next){
         const decoded = jwt.verify(token, process.env.SECRET_JWT);
 
         if (!decoded.userId){
-          return res.status(401).json({"error:": "Usuário não encontrado"})  
+          return next(new UnauthorizedError("Usuário não encontrado"));  
         }
 
         req.userId = decoded.userId;
         return next();
 
     } catch(error){
-        return res.status(401).json({"error:": "Token inválido ou expirado"})
+        return next(new UnauthorizedError("Token inválido ou expirado"));
     }
 }

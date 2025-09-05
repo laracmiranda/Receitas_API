@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { NotFoundError, ConflictError, UnauthorizedError } from "../errors/AppError.js";
 
 export class UserService {
   constructor(userRepository) {
@@ -11,41 +12,40 @@ export class UserService {
 
   async getUserById(id) {
     const user = await this.userRepository.findUnique({ id });
-    if (!user) throw new Error("NOT_FOUND");
+    if (!user) throw new NotFoundError("Usuário não encontrado");
     return user;
   }
 
   async getAuthenticatedUser(userId) {
     const user = await this.userRepository.findUnique({ id: userId });
-    if (!user) throw new Error("NOT_FOUND");
+    if (!user) throw new NotFoundError("Usuário não encontrado");
     return user;
   }
 
   async createUser({ name, email, password }) {
     const existingUser = await this.userRepository.findUnique({ email });
-    if (existingUser) throw new Error("EMAIL_IN_USE");
+    if (existingUser) throw new ConflictError("Email já está em uso");
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     return this.userRepository.create({ name, email, password: hashedPassword });
   }
 
   async updateUser(userId, { name, email }) {
     const user = await this.userRepository.findUnique({ id: userId });
-    if (!user) throw new Error("NOT_FOUND");
+    if (!user) throw new NotFoundError("Usuário não encontrado");
 
     const emailExists = await this.userRepository.findUnique({ email });
-    if (emailExists && emailExists.id !== userId) throw new Error("EMAIL_IN_USE");
+    if (emailExists && emailExists.id !== userId) throw new ConflictError("Email já está em uso");
 
     return this.userRepository.update(userId, { name, email });
   }
 
   async changePassword(userId, currentPassword, newPassword) {
     const user = await this.userRepository.findUnique({ id: userId });
-    if (!user) throw new Error("NOT_FOUND");
+    if (!user) throw new NotFoundError("Usuário não encontrado");
 
     const validPassword = await bcrypt.compare(currentPassword, user.password);
-    if (!validPassword) throw new Error("INVALID_PASSWORD");
+    if (!validPassword) throw new UnauthorizedError("Senha atual incorreta");
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.userRepository.update(userId, { password: hashedPassword });
@@ -55,7 +55,7 @@ export class UserService {
 
   async deleteUser(userId) {
     const user = await this.userRepository.findUnique({ id: userId });
-    if (!user) throw new Error("NOT_FOUND");
+    if (!user) throw new NotFoundError("Usuário não encontrado");
 
     return this.userRepository.delete(userId);
   }

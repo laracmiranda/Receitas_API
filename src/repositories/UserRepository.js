@@ -6,7 +6,10 @@ export class UserRepository {
   }
 
   async findUnique(where) {
-    return prismaClient.user.findUnique({ where });
+    return prismaClient.user.findUnique({ 
+      where,
+      select: { id: true, name: true, email: true }
+     });
   }
 
   async create(data) {
