@@ -5,7 +5,7 @@ const commentRepository = new CommentRepository();
 const commentService = new CommentService(commentRepository);
 
 export class CommentController {
-  async findCommentsByRecipe(req, res, next) {
+  findCommentsByRecipe = async (req, res, next) => {
     try {
       const { recipeId } = req.params;
       const page = parseInt(req.query.page) || 1;
@@ -18,9 +18,9 @@ export class CommentController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async createComment(req, res, next) {
+  createComment = async (req, res, next) => {
     try {
       const userId = req.userId;
       const { content } = req.body;
@@ -32,9 +32,9 @@ export class CommentController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async deleteComment(req, res, next) {
+  deleteComment = async (req, res, next) => {
     try {
       const { id } = req.params;
       const userId = req.userId;
@@ -45,5 +45,5 @@ export class CommentController {
     } catch (error) {
       next(error);
     }
-  }
+  };
 }
