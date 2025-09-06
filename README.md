@@ -1,6 +1,6 @@
 # 🍜 Receitas API 
 
-API desenvolvida para gerenciar receitas, comentários e favoritos de usuários.  
+API RESTful desenvolvida para gerenciar receitas, comentários e favoritos de usuários.  
 Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários e favoritar receitas.  
 
 </br>
@@ -22,6 +22,7 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 
 - CRUD de usuários e receitas
 - Autenticação de usuários com `JWT`
+- Senhas criptografadas com `bcryptjs`
 - Proteção de rotas com Bearer Token
 - Redefinição de senha com token + email com `nodemailer`
 - Usuários podem adicionar comentários nas receitas
@@ -76,50 +77,104 @@ Caso não defina uma rota personalizada, a API estará disponível em `http://lo
 
 ---
 
-## ↪️ Rotas
+# ↪️ Rotas
 
-### 👤 Usuários
+## 👤 Usuários
 
-| Método | Rota         | Descrição                |
-| ------ | ------------ | ------------------------ |
-| GET    | `/users`     | Listar todos os usuários |
-| GET    | `/user/:id`  | Buscar usuário por ID    |
-| POST   | `/users`     | Criar usuário            |
-| PUT    | `/users/:id` | Atualizar usuário        |
-| DELETE | `/users/:id` | Deletar usuário          |
+### Admin/Público
 
-### 🔐 Login
+| Método | Rota   | Autenticação | Descrição                        |
+|--------|--------|--------------|----------------------------------|
+| GET    | /users | Pública      | Lista todos os usuários          |
+| GET    | /users/:id | Pública  | Busca usuário por ID             |
+| POST   | /users | Pública      | Cria um novo usuário            |
 
-| Método | Rota     | Descrição                            |
-| ------ | -------- | ------------------------------------ |
-| POST   | `/login` | Autenticar usuário e gerar token JWT |
 
-### 🥪 Receitas
+### Usuário Autenticado
 
-| Método | Rota            | Descrição                                                |
-| ------ | --------------- | -------------------------------------------------------- |
-| GET    | `/recipes`      | Listar todas as receitas                                 |
-| GET    | `/recipe/:id`   | Buscar receita por ID                                    |
-| GET    | `/recipes/user` | Listar receitas do usuário logado (autenticado)          |
-| POST   | `/recipes`      | Criar receita (autenticado, envio de imagem obrigatório) |
-| PUT    | `/recipes/:id`  | Atualizar receita (autenticado)                          |
-| DELETE | `/recipes/:id`  | Deletar receita (autenticado)                            |
+| Método | Rota   | Autenticação | Descrição                        |
+|--------|--------|--------------|----------------------------------|
+| GET    | /users/me | JWT Bearer | Retorna os dados do usuário logado |
+| PUT    | /users/me | JWT Bearer | Atualiza os dados do usuário logado |
+| DELETE | /users/me | JWT Bearer | Deleta a conta do usuário logado   |
 
-### 💬 Comentários
 
-| Método | Rota                              | Descrição                                       |
-| ------ | --------------------------------- | ----------------------------------------------- |
-| GET    | `/recipes/:recipeId/comments`     | Listar comentários de uma receita               |
-| POST   | `/recipes/:recipeId/comments`     | Criar comentário (autenticado)                  |
-| DELETE | `/recipes/:recipeId/comments/:id` | Deletar comentário (autenticado, dono apenas)   |
+### Segurança / Conta
 
-### ❤️ Favoritos
+| Método | Rota                    | Autenticação | Descrição                    |
+|--------|-------------------------|--------------|------------------------------|
+| PUT    | /users/me/change-password | JWT Bearer | Altera a senha do usuário logado |
 
-| Método | Rota                          | Descrição                                          |
-| ------ | ----------------------------- | -------------------------------------------------- |
-| GET    | `/favorites`                  | Listar receitas favoritas do usuário (autenticado) |
-| POST   | `/recipes/:recipeId/favorite` | Adicionar receita aos favoritos (autenticado)      |
-| DELETE | `/favorites/:id`              | Remover favorito (autenticado, dono apenas)        |
+
+### Recursos do Usuário
+
+| Método | Rota                 | Autenticação | Descrição                          |
+|--------|--------------------|--------------|------------------------------------|
+| GET    | /users/me/recipes   | JWT Bearer   | Lista todas as receitas do usuário |
+| GET    | /users/me/favorites | JWT Bearer   | Lista todos os favoritos do usuário |
+
+
+### 📌 Observações
+- **Autenticação JWT**: Todas as rotas com `JWT Bearer` exigem o token no header `Authorization: Bearer <token>`.  
+- **Públicas**: Rotas de criação e consulta básica não precisam de autenticação.
+
+---
+
+## 🔐 Autenticação
+
+### Login
+
+| Método | Rota       | Autenticação | Descrição                     |
+|--------|------------|--------------|-------------------------------|
+| POST   | /login     | Pública      | Gera token JWT para o usuário |
+
+### Redefinição de Senha
+
+| Método | Rota                        | Autenticação | Descrição                                           |
+|--------|----------------------------|--------------|---------------------------------------------------|
+| POST   | /request-reset             | Pública      | Solicita link/token de redefinição de senha via e-mail |
+| POST   | /reset-password/:token     | Pública      | Redefine a senha usando o token enviado por e-mail      |
+
+
+### 📌 Observações
+- Todas as rotas de autenticação são **públicas**, pois o usuário ainda não possui token.  
+- A rota `/reset-password/:token` exige que o token enviado por e-mail seja válido.  
+- Ao fazer login, o usuário recebe um **JWT** que será usado para acessar as rotas protegidas do sistema.
+
+---
+
+## 🥪 Receitas
+
+### Manipulação de Receitas
+
+| Método | Rota          | Autenticação | Descrição                             |
+|--------|---------------|--------------|---------------------------------------|
+| GET    | /recipes      | Pública      | Lista todas as receitas               |
+| GET    | /recipes/:id  | Pública      | Busca uma receita pelo ID             |
+| POST   | /recipes      | JWT Bearer   | Cria uma nova receita (com upload de imagem) |
+| PUT    | /recipes/:id  | JWT Bearer   | Atualiza uma receita existente (com upload de imagem) |
+| DELETE | /recipes/:id  | JWT Bearer   | Deleta uma receita existente          |
+
+### Comentários
+
+| Método | Rota                        | Autenticação | Descrição                               |
+|--------|-----------------------------|--------------|----------------------------------------|
+| GET    | /recipes/:recipeId/comments | Pública      | Lista todos os comentários de uma receita |
+| POST   | /recipes/:recipeId/comments | JWT Bearer   | Adiciona um comentário à receita       |
+| DELETE | /recipes/:recipeId/comments/:id | JWT Bearer | Remove um comentário da receita        |
+
+### Favoritos
+
+| Método | Rota                        | Autenticação | Descrição                               |
+|--------|-----------------------------|--------------|----------------------------------------|
+| POST   | /recipes/:recipeId/favorite | JWT Bearer   | Adiciona a receita aos favoritos do usuário |
+| DELETE | /recipes/:recipeId/favorite | JWT Bearer   | Remove a receita dos favoritos do usuário |
+
+
+### 📌 Observações
+- **Rotas públicas**: qualquer pessoa pode visualizar receitas e comentários sem autenticação.  
+- **Rotas protegidas (JWT Bearer)**: criação, edição e exclusão de receitas, comentários e favoritos exigem token JWT válido.  
+- **Upload de imagens**: nas rotas de criação e atualização de receitas, o arquivo de imagem deve ser enviado no campo `image`.
 
 ---
 
@@ -144,26 +199,56 @@ O token é obtido através do login.
 
 ---
 
-## Observações
-
-* O upload de imagens das receitas é feito via **Cloudinary**.
-* Senhas de usuários são armazenadas **criptografadas** com bcryptjs.
-* Tokens JWT expiram em 1 hora.
-* Não é permitido favoritar a mesma receita mais de uma vez.
-
----
-
 ## 👁️‍🗨️ Testando a API
 
 Sugestão de fluxo no Insomnia ou Postman:
 
 1. Criar usuário → POST `/users`
+```json
+{
+	"name": "Teste",
+	"email": "teste@gmail.com",
+	"password": "12345678"
+}
+```
+
 2. Fazer login → POST `/login`
+```json
+{
+	"email": "lucas@gmail.com",
+	"password": "12345678"
+}
+```
+
 3. Criar receita → POST `/recipes` (autenticado)
+- Selecionar `Form Data` para incluir os dados com envio de imagem.
+**Exemplo de dados:**
+```
+name: Bolo de Chocolate
+category: Sobremesa
+ingredients: 2 ovos, 400g de farinha, 300g de nescau
+steps: Misture tudo, unte uma forma e coloque para assar por 40 minutos
+image: (upload de imagem)
+```
+
 4. Adicionar comentário → POST `/recipes/:recipeId/comments` (autenticado)
+```json
+{
+	"content": "Gostei da receita"
+}
+```
+
 5. Favoritar receita → POST `/recipes/:recipeId/favorite` (autenticado)
-6. Listar favoritos → GET `/favorites` (autenticado)
-7. Deletar favorito → DELETE `/favorites/:id` (autenticado)
+- Passar o id da receita no endpoint
+
+---
+
+## 🤝 Contribuição
+1. Faça um fork deste repositório  
+2. Crie uma branch com sua feature (`git checkout -b feature/nome-da-feature`)  
+3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)  
+4. Push para a branch (`git push origin feature/nome-da-feature`)  
+5. Abra um Pull Request explicando o que altera e por quê
 
 ---
 
@@ -171,3 +256,7 @@ Sugestão de fluxo no Insomnia ou Postman:
 - ~Redefinição de senha para usuários com token via e-mail~ ✅
 - Deploy
 - Documentação
+
+## 📃 Licença
+
+Este projeto está licenciado sob a licença **MIT** 
