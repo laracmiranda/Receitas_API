@@ -2,13 +2,13 @@ import { prismaClient } from "../../database/PrismaClient.js";
 
 export class UserRepository {
   async findAll() {
-    return prismaClient.user.findMany({ select: { id: true, name: true, email: true } });
+    return prismaClient.user.findMany({ select: { name: true, email: true } });
   }
 
   async findUnique(where) {
     return prismaClient.user.findUnique({ 
       where,
-      select: { id: true, name: true, email: true }
+      select: { name: true, email: true }
      });
   }
 
