@@ -1,0 +1,738 @@
+openapi: 3.0.0
+info:
+  title: Receitas API
+  version: 1.0.0
+  description: API para gerenciamento de usuários, receitas, comentários e favoritos, com autenticação JWT e upload de imagens com Cloudinary
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Servidor local de desenvolvimento
+  - url: http://localhost:3000/api/v1
+    description: Servidor local de desenvolvimento
+
+tags:
+  - name: Autenticação
+    description: Fluxos de login e redefinição de senha
+  - name: Usuários
+    description: Operações públicas relacionadas a usuários
+  - name: Segurança / Conta
+    description: Manipulação de dados da conta do usuário autenticado
+  - name: Recursos do Usuário
+    description: Recursos disponíveis para o usuário autenticado
+  - name: Receitas
+    description: Operações relacionadas a receitas
+  - name: Comentários
+    description: Comentários em receitas
+  - name: Favoritos
+    description: Gerenciamento de favoritos
+
+
+paths:
+  /users:
+    get:
+      summary: Lista todos os usuários
+      description: |
+        ### Descrição
+        Esta rota retorna **todos os usuários** cadastrados no sistema.
+
+        #### Observações
+        - Não requer autenticação
+        - Retorna uma lista paginada de usuários
+        
+      tags: [Usuários]
+      responses:
+        "200":
+          description: Lista de usuários retornada com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+    post:
+      summary: Cria um novo usuário
+      description: |
+        ### Descrição
+        Esta rota faz o **cadastro** de um novo usuário.
+
+        #### Observações
+        - Não requer autenticação
+        - Necessário informar nome, email e senha
+        - Senhas criptografadas com **bcryptjs**
+      tags: [Usuários]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{userId}:
+    get:
+      summary: Busca usuário por ID
+      description: |
+        ### Descrição
+        Esta rota retorna **um único usuário** de acordo com o ID buscado.
+
+        #### Observações
+        - Não requer autenticação
+        - Necessário informar o ID na URL
+      tags: [Usuários]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+          description: ID do usuário
+      responses:
+        "200":
+          description: Usuário encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404": { description: Usuário não encontrado }
+
+  /users/me:
+    get:
+      summary: Retorna os dados do usuário autenticado
+      description: |
+        ### Descrição
+        Esta rota retorna os dados do usuário que está logado no momento.
+
+        #### Observações
+        - Necessária autenticação prévia.
+      tags: [Segurança / Conta]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "200":
+          description: Dados do usuário autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+    put:
+      summary: Atualiza os dados do usuário autenticado
+      description: |
+        ### Descrição
+        Esta rota faz a **atualização** dos dados de um usuário já existente.
+
+        #### Observações
+        - Necessária autenticação prévia
+        - Os dados atualizados podem ser o nome ou e-mail
+        - O ID do usuário já vem do token de autenticação.
+      tags: [Segurança / Conta]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+    delete:
+      summary: Deleta a conta do usuário autenticado
+      description: |
+        ### Descrição
+        Esta rota faz o **deleção** de um usuário já existente.
+
+        #### Observações
+        - Necessário autenticação prévia.
+        - Apenas o próprio usuário pode deletar sua conta.
+        - O ID do usuário já vem do token de autenticação.
+      tags: [Segurança / Conta]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "204": { description: Usuário deletado com sucesso }
+
+  /users/me/change-password:
+    put:
+      summary: Altera a senha do usuário autenticado
+      description: |
+        ### Descrição
+        Esta rota faz o **troca de senha** de um usuário já existente.
+
+        #### Observações
+        - Necessário autenticação prévia.
+        - O ID do usuário já vem do token de autenticação.
+        - É preciso confirmar a senha atual para conseguir definir uma nova.
+      tags: [Segurança / Conta]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword: { type: string, example: senhaAntiga123 }
+                newPassword: { type: string, example: senhaNova456 }
+      responses:
+        "200":
+          description: Senha atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Senha atualizada com sucesso! }
+        "401": { description: Senha atual incorreta }
+
+  /users/me/recipes:
+    get:
+      summary: Lista todas as receitas do usuário autenticado
+      description: |
+        ### Descrição
+        Esta rota retorna **todas as receitas** cadastradas por um usuário.
+
+        #### Observações
+        - Necessário autenticação prévia.
+        - O ID do usuário já vem do token de autenticação.
+      tags: [Recursos do Usuário]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "200":
+          description: Lista de receitas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Recipe" }
+
+  /users/me/recipes/{recipeId}:
+    put:
+        summary: Atualiza uma receita
+        description: |
+          ### Descrição
+          Esta rota faz a **atualização** das informações de uma receita já cadastrada da página de receitas do usuário.
+  
+          #### Observações
+          - Necessária autenticação prévia.
+          - Somente o usuário que cadastrou a receita pode editá-la.
+          - O ID do usuário já vem do token de autenticação.
+        tags: [Recursos do Usuário]
+        security: [ { bearerAuth: [] } ]
+        parameters:
+          - in: path
+            name: recipeId
+            required: true
+            schema: { type: string }
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                $ref: "#/components/schemas/RecipeUpdate"
+        responses:
+          "200":
+            description: Receita atualizada com sucesso
+            content:
+              application/json:
+                schema: { $ref: "#/components/schemas/Recipe" }
+  
+    delete:
+        summary: Deleta uma receita
+        description: |
+          ### Descrição
+          Esta rota faz a **deleção** de uma receita já cadastrada da página de receitas do usuário.
+  
+          #### Observações
+          - Necessária autenticação prévia.
+          - Somente o usuário que cadastrou a receita pode deletá-la.
+          - O ID do usuário já vem do token de autenticação.
+        tags: [Recursos do Usuário]
+        security: [ { bearerAuth: [] } ]
+        parameters:
+          - in: path
+            name: recipeId
+            required: true
+            schema: { type: string }
+        responses:
+          "204": { description: Receita deletada com sucesso }
+        
+  /users/me/favorites:
+    get:
+      summary: Lista todos os favoritos do usuário autenticado
+      description: |
+        ### Descrição
+        Esta rota retorna **todas as receitas** favoritadas por um usuário.
+
+        #### Observações
+        - Necessário autenticação prévia.
+        - O ID do usuário já vem do token de autenticação.
+      tags: [Recursos do Usuário]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        "200":
+          description: Lista de favoritos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Recipe" }
+                
+  /users/me/favorites/{recipeId}:
+    delete:
+      summary: Remove receita dos favoritos
+      description: |
+        ### Descrição
+        Esta rota **remove** uma receita da lista de favoritos de um usuário **diretamente** da página de **favoritos**.
+
+        #### Observações
+        - Requer autenticação prévia.
+        - Necessário informar o ID da receita na URL.
+      tags: [Recursos do Usuário]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Receita removida dos favoritos }
+    
+  /auth/login:
+    post:
+      summary: Login do usuário
+      description: |
+        ### Descrição
+        Esta rota faz a **autenticação** do usuário.
+
+        #### Observações
+        - Não requer autenticação prévia, pois é aqui onde o usuário é autenticado.
+        - Necessário informar e-mail e senha cadastrados.
+        - Gera um token JWT válido por 1h para autenticação do usuário.
+      tags: [Autenticação]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: usuario@email.com }
+                password: { type: string, example: "123456" }
+      responses:
+        "200":
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string, example: jwt_token_aqui }
+                  user:
+                    type: object
+                    properties:
+                      id: { type: string, example: uuid-do-usuario }
+                      name: { type: string, example: Nome do Usuário }
+        "401": { description: Credenciais inválidas }
+
+  /auth/request-reset:
+    post:
+      summary: Solicitação de redefinição de senha
+      description: |
+        ### Descrição
+        Esta rota faz a **solicitação** da redefinição de senha.
+
+        #### Observações
+        - Não requer autenticação prévia
+        - Necessário informar e-mail cadastrado.
+        - Gera um token para redefinição de senha válido por 15 minutos.
+        - Envia link de redefinição de senha para o e-mail do usuário.
+      tags: [Autenticação]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, example: usuario@email.com }
+      responses:
+        "200":
+          description: E-mail enviado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: E-mail de redefinição enviado! }
+        "404": { description: Usuário não encontrado }
+
+  /auth/reset-password/{token}:
+    post:
+      summary: Redefinir senha
+      description: |
+        ### Descrição
+        Esta rota faz a **redefinição** da senha de um usuário existente.
+
+        #### Observações
+        - Não requer autenticação prévia
+        - Necessário token enviado por e-mail.
+        - Deve ser informada a nova senha para redefinição.
+      tags: [Autenticação]
+      parameters:
+        - in: path
+          name: token
+          schema: { type: string }
+          required: true
+          description: Token de redefinição de senha
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [newPassword]
+              properties:
+                newPassword: { type: string, example: novaSenha123 }
+      responses:
+        "200":
+          description: Senha redefinida com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: Senha redefinida com sucesso! }
+        "400": { description: Token inválido ou expirado }
+
+  /recipes:
+    get:
+      summary: Lista todas as receitas
+      description: |
+        ### Descrição
+        Esta rota retorna **todos as receitas** cadastrados no sistema.
+
+        #### Observações
+        - Não requer autenticação.
+        - Retorna uma lista paginada de receitas.
+      tags: [Receitas]
+      responses:
+        "200":
+          description: Lista de receitas
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Recipe" }
+
+    post:
+      summary: Cria uma nova receita
+      description: |
+        ### Descrição
+        Esta rota faz o **cadastro** de uma nova receita.
+
+        #### Observações
+        - Requer autenticação prévia.
+        - Necessário informar nome, categoria, ingredientes, modo de preparo e uma imagem da receita.
+      tags: [Receitas]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/RecipeCreate"
+      responses:
+        "201":
+          description: Receita criada com sucesso
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Recipe" }
+
+  /recipes/{recipeId}:
+    get:
+      summary: Busca receita por ID
+      description: |
+        ### Descrição
+        Esta rota retorna **uma única receita** de acordo com o ID buscado.
+
+        #### Observações
+        - Não requer autenticação
+        - Necessário informar o ID na URL
+      tags: [Receitas]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Receita encontrada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Recipe" }
+        "404": { description: Receita não encontrada }
+
+    put:
+        summary: Atualiza uma receita
+        description: |
+          ### Descrição
+          Esta rota faz a **atualização** das informações de uma receita já cadastrada **diretamente** na página da receita.
+  
+          #### Observações
+          - Necessária autenticação prévia.
+          - Somente o usuário que cadastrou a receita pode editá-la.
+          - O ID do usuário já vem do token de autenticação.
+        tags: [Receitas]
+        security: [ { bearerAuth: [] } ]
+        parameters:
+          - in: path
+            name: recipeId
+            required: true
+            schema: { type: string }
+        requestBody:
+          required: true
+          content:
+            multipart/form-data:
+              schema:
+                $ref: "#/components/schemas/RecipeUpdate"
+        responses:
+          "200":
+            description: Receita atualizada com sucesso
+            content:
+              application/json:
+                schema: { $ref: "#/components/schemas/Recipe" }
+  
+    delete:
+        summary: Deleta uma receita
+        description: |
+          ### Descrição
+          Esta rota faz a **deleção** de uma receita já cadastrada **diretamente** na página da receita.
+  
+          #### Observações
+          - Necessária autenticação prévia.
+          - Somente o usuário que cadastrou a receita pode deletá-la.
+          - O ID do usuário já vem do token de autenticação.
+        tags: [Receitas]
+        security: [ { bearerAuth: [] } ]
+        parameters:
+          - in: path
+            name: recipeId
+            required: true
+            schema: { type: string }
+        responses:
+          "204": { description: Receita deletada com sucesso }
+        
+
+  /recipes/{recipeId}/comments:
+    get:
+      summary: Lista comentários de uma receita
+      description: |
+        ### Descrição
+        Esta rota retorna **todos os comentários** feitos em uma receita.
+
+        #### Observações
+        - Não requer autenticação.
+        - Retorna uma lista paginada de comentários.
+        - Necessário informar o ID da receita na URL.
+      tags: [Comentários]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Lista de comentários
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Comment" }
+
+    post:
+      summary: Cria um comentário em uma receita
+      description: |
+        ### Descrição
+        Esta rota **adiciona** um novo comentário em uma receita existente.
+
+        #### Observações
+        - Requer autenticação prévia.
+        - O comentário precisa ter um conteúdo, não é permitida a criação de comentários vazios.
+        - Necessário informar o ID da receita na URL.
+      tags: [Comentários]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CommentCreate" }
+      responses:
+        "201":
+          description: Comentário criado com sucesso
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Comment" }
+
+  /recipes/{recipeId}/comments/{id}:
+    delete:
+      summary: Remove um comentário
+      description: |
+        ### Descrição
+        Esta rota **deleta** um comentário já realizado em uma receita existente.
+
+        #### Observações
+        - Requer autenticação prévia.
+        - Apenas o usuário que comentou pode deletar o comentário.
+        - Necessário informar o ID da receita na URL.
+        - Necessário informar o ID do comentário na URL.
+        - O ID do usuário já vem do token de autenticação.
+      tags: [Comentários]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Comentário removido com sucesso }
+
+  /recipes/{recipeId}/favorite:
+    post:
+      summary: Adiciona receita aos favoritos
+      description: |
+        ### Descrição
+        Esta rota **adiciona** uma receita na lista de favoritos de um usuário.
+
+        #### Observações
+        - Requer autenticação prévia.
+        - Necessário informar o ID da receita na URL.
+      tags: [Favoritos]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        "201": { description: Receita favoritada com sucesso }
+
+    delete:
+      summary: Remove receita dos favoritos
+      description: |
+        ### Descrição
+        Esta rota **remove** uma receita da lista de favoritos de um usuário **diretamente** da página de receitas.
+
+        #### Observações
+        - Requer autenticação prévia.
+        - Necessário informar o ID da receita na URL.
+      tags: [Favoritos]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          required: true
+          schema: { type: string }
+      responses:
+        "204": { description: Receita removida dos favoritos }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string, example: uuid-do-usuario }
+        name: { type: string, example: João da Silva }
+        email: { type: string, example: joao@email.com }
+
+    UserCreate:
+      type: object
+      required: [name, email, password]
+      properties:
+        name: { type: string, example: João da Silva }
+        email: { type: string, example: joao@email.com }
+        password: { type: string, example: "123456" }
+
+    UserUpdate:
+      type: object
+      properties:
+        name: { type: string, example: João da Silva }
+        email: { type: string, example: joao@email.com }
+
+    Recipe:
+      type: object
+      properties:
+        id: { type: string, example: uuid-da-receita }
+        name: { type: string, example: Bolo de Chocolate }
+        category: { type: string, example: Sobremesa }
+        image: { type: string, example: url-da-imagem.jpg }
+
+    RecipeCreate:
+      type: object
+      required: [name, category]
+      properties:
+        name: { type: string, example: Bolo de Chocolate }
+        category: { type: string, example: Sobremesa }
+        ingredients:
+          type: array
+          items: { type: string }
+          example: ["Farinha", "Ovos", "Chocolate"]
+        steps:
+          type: array
+          items: { type: string }
+          example: ["Misturar os ingredientes", "Assar por 40 minutos"]
+        image: { type: string, format: binary }
+
+    RecipeUpdate:
+      type: object
+      properties:
+        name: { type: string, example: Bolo de Chocolate Atualizado }
+        category: { type: string, example: Sobremesa }
+        ingredients:
+          type: array
+          items: { type: string }
+        steps:
+          type: array
+          items: { type: string }
+        image: { type: string, format: binary }
+
+    Comment:
+      type: object
+      properties:
+        id: { type: string, example: uuid-do-comentario }
+        content: { type: string, example: Receita ótima! }
+        userId: { type: string, example: uuid-do-usuario }
+        recipeId: { type: string, example: uuid-da-receita }
+
+    CommentCreate:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, example: Receita maravilhosa! }
