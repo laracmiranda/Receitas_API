@@ -5,8 +5,8 @@ info:
   description: API para gerenciamento de usuários, receitas, comentários e favoritos, com autenticação JWT e upload de imagens com Cloudinary
 
 servers:
-  - url: http://localhost:3000/api/v1
-    description: Servidor local de desenvolvimento
+  - url: https://receitas-api-6a7p.onrender.com/api/v1
+    description: Servidor remoto no render
   - url: http://localhost:3000/api/v1
     description: Servidor local de desenvolvimento
 
