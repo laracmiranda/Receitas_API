@@ -22,8 +22,8 @@ export class RecipeController {
 
   findRecipe = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      const recipe = await recipeService.getRecipeById(id);
+      const { recipeId } = req.params;
+      const recipe = await recipeService.getRecipeById(recipeId);
 
       return res.status(200).json(recipe);
     } catch (error) {
@@ -68,11 +68,11 @@ export class RecipeController {
 
   updateRecipe = async (req, res, next) => {
     try {
-      const { id } = req.params;
+      const { recipeId } = req.params;
       const userId = req.userId;
       const { name, category, ingredients, steps } = req.body;
 
-      const recipe = await recipeService.updateRecipe(id, userId, {
+      const recipe = await recipeService.updateRecipe(recipeId, userId, {
         name,
         category,
         ingredients,
@@ -88,10 +88,10 @@ export class RecipeController {
 
   deleteRecipe = async (req, res, next) => {
     try {
-      const { id } = req.params;
+      const { recipeId } = req.params;
       const userId = req.userId;
 
-      await recipeService.deleteRecipe(id, userId);
+      await recipeService.deleteRecipe(recipeId, userId);
 
       return res.status(200).json({ message: "Receita deletada com sucesso" });
     } catch (error) {
