@@ -34,14 +34,16 @@ export class UserService {
     const user = await this.userRepository.findUnique({ id: userId });
     if (!user) throw new NotFoundError("Usuário não encontrado");
 
-    const emailExists = await this.userRepository.findUnique({ email });
-    if (emailExists && emailExists.id !== userId) throw new ConflictError("Email já está em uso");
+    if (email !== user.email) {
+      const emailExists = await this.userRepository.findUnique({ email });
+      if (emailExists && emailExists.id !== userId) throw new ConflictError("Email já está em uso");
+    }
 
     return this.userRepository.update(userId, { name, email });
   }
 
   async changePassword(userId, currentPassword, newPassword) {
-    const user = await this.userRepository.findUnique({ id: userId });
+    const user = await this.userRepository.findUserWithPassword({ id: userId });
     if (!user) throw new NotFoundError("Usuário não encontrado");
 
     const validPassword = await bcrypt.compare(currentPassword, user.password);

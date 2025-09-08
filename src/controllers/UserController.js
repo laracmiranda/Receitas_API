@@ -1,6 +1,7 @@
 import { UserRepository } from "../repositories/UserRepository.js";
 import { UserService } from "../services/UserService.js";
 import { createUserSchema, updateUserSchema, changePasswordSchema } from "../validators/userValidator.js";
+import { ValidationError } from "../errors/AppError.js";
 
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);

@@ -12,6 +12,10 @@ export class UserRepository {
      });
   }
 
+  async findUserWithPassword (where) {
+    return prismaClient.user.findUnique({ where })
+  }
+  
   async create(data) {
     return prismaClient.user.create({
       data,
