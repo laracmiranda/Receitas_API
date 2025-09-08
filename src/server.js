@@ -13,7 +13,6 @@ const app = express();
 
 const allowedOrigins = [
     'http://localhost:8080',
-    'http://localhost:3000',
     'https://receitas-api-6a7p.onrender.com'
 ];
 

@@ -7,8 +7,10 @@ info:
 servers:
   - url: https://receitas-api-6a7p.onrender.com/api/v1
     description: Servidor remoto no render
-  - url: http://localhost:3000/api/v1
+  - url: http://localhost:8080/api/v1
     description: Servidor local de desenvolvimento
+  - url: http://localhost:3000/api/v1
+    description: Servidor para testes
 
 tags:
   - name: Autenticação
