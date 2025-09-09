@@ -1,36 +1,76 @@
 # 🍜 Receitas API 
 
+<p align="left"> 
+
+![Node.js](https://img.shields.io/badge/Node.js-22+-green.svg)
+![Express](https://img.shields.io/badge/Express-5.1-black.svg)
+![PrismaORM](https://img.shields.io/badge/Prisma-6.13-purple.svg)
+![PostgreSQL](https://img.shields.io/badge/Banco-PostgreSQL-blue.svg)
+![Neon](https://img.shields.io/badge/Banco-Neon-green.svg)
+![JWT](https://img.shields.io/badge/JWT-Auth-orange.svg)
+![Bcrypt](https://img.shields.io/badge/Bcrypt-3.0.2-red.svg)
+![LICENSE](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 API RESTful desenvolvida para gerenciar receitas, comentários e favoritos de usuários.  
 Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários e favoritar receitas.  
 
-</br>
-
-<p align="left"> 
-  <img src="https://img.shields.io/badge/Node.js-bc1a3c.svg?style=for-the-badge&logo=nodedotjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/Express-bc1a3c?style=for-the-badge&logo=express&logoColor=white" />
-  <img src="https://img.shields.io/badge/Prisma-bc1a3c.svg?style=for-the-badge&logo=Prisma&logoColor=white" />
-  <img src="https://img.shields.io/badge/PostgreSQL-bc1a3c.svg?style=for-the-badge&logo=PostgreSQL&logoColor=white" />
-  <img src="https://img.shields.io/badge/Neon-bc1a3c?style=for-the-badge&logo=neon&logoColor=white" />
-  <img src="https://img.shields.io/badge/Cloudinary-bc1a3c.svg?style=for-the-badge&logo=Cloudinary&logoColor=white" />
-  <img src="https://img.shields.io/badge/JWT-bc1a3c?style=for-the-badge&logo=jsonwebtoken&logoColor=white" />
-  <img src="https://img.shields.io/badge/bcryptjs-bc1a3c?style=for-the-badge&logo=bcryptjs&logoColor=white" />
-</p>
+📌 **Observações**
+- Você pode conferir a API diretamente aqui! - [Receitas API](https://receitas-api-6a7p.onrender.com/)
+- Documentação completa disponível em [Documentação](https://receitas-api-6a7p.onrender.com/docs/)
+- Testes podem ser feitos **diretamente pela documentação**, sem a necessidade rodar localmente!
 
 ---
 
 ## 📲 Funcionalidades
 
-- CRUD de usuários e receitas
-- Autenticação de usuários com `JWT`
+### 👤 **Usuários**
+
+- Cadastro e login de usuários
+- Autenticação `JWT` com expiração
 - Senhas criptografadas com `bcryptjs`
-- Proteção de rotas com Bearer Token
-- Redefinição de senha com token + email com `nodemailer`
-- Usuários podem adicionar comentários nas receitas
-- Usuários podem favoritas as receitas que mais gostaram
+- Atualização de perfil
+- Redefinição de senha via e-mail com token com `nodemailer`
+
+### 🥪 **Receitas**
+
+- CRUD completo (GET, POST, PUT, DELETE)
 - Upload de imagens com `Cloudinary`
+- Exibição das receitas cadastradas para o usuário autenticado
+- Paginação para a exibição da lista de receitas
+
+### 💬 **Comentários**
+
+- Usuários autenticados podem adicionar comentários nas receitas
+- Comentários podem ser deletados por quem os fez
+- Exibição da lista de comentários com paginação por receita
+
+### ❤️ **Favoritos***
+
+- Usuários autenticados podem favoritar receitas
+- As receitas favoritadas podem ser removidas quando desejar
+- Paginação para a exibição da lista de receitas favoritadas
 
 ---
 
+## 🛠️ Tecnologias
+
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **Neon** (PostgreSQL) - Banco de dados na nuvem
+- **JWT** - Autenticação
+- **Bcrypt** - Criptografia de senhas
+- **Joi** - Validação de dados
+- **Nodemailer** - E-mail para redefinição de senha
+- **PrismaORM** - Comunicação com Banco de Dados
+- **Cloudinary** - Upload de imagens
+- **Swagger** - Documentação da API
+
+</br>
+Para saber mais sobre o Upload de imagens com Cloudinary, você pode checar esse repositório feito por mim!
+
+👉 [Armazenando imagens em banco relacional](https://github.com/laracmiranda/Estudos_Gerais/tree/main/Armazenamento%20de%20Imagens)
+
+--- 
 ## 📦 Instalação
 
 1. Clone o repositório:
@@ -58,6 +98,8 @@ SECRET_JWT=SuaChaveSecreta
 CLOUDINARY_CLOUD_NAME=seu_cloud_name
 CLOUDINARY_API_KEY=sua_api_key
 CLOUDINARY_API_SECRET=sua_api_secret
+EMAIL_USER=email_completo_nodemailer
+EMAIL_PASS=senha_app_nodemailer
 PORT=sua_porta
 ```
 
@@ -77,119 +119,6 @@ Caso não defina uma rota personalizada, a API estará disponível em `http://lo
 
 ---
 
-# ↪️ Rotas
-
-## 👤 Usuários
-
-### Admin/Público
-
-| Método | Rota   | Autenticação | Descrição                        |
-|--------|--------|--------------|----------------------------------|
-| GET    | /users | Pública      | Lista todos os usuários          |
-| GET    | /users/:id | Pública  | Busca usuário por ID             |
-| POST   | /users | Pública      | Cria um novo usuário            |
-
-
-### Usuário Autenticado
-
-| Método | Rota   | Autenticação | Descrição                        |
-|--------|--------|--------------|----------------------------------|
-| GET    | /users/me | JWT Bearer | Retorna os dados do usuário logado |
-| PUT    | /users/me | JWT Bearer | Atualiza os dados do usuário logado |
-| DELETE | /users/me | JWT Bearer | Deleta a conta do usuário logado   |
-
-
-### Segurança / Conta
-
-| Método | Rota                    | Autenticação | Descrição                    |
-|--------|-------------------------|--------------|------------------------------|
-| PUT    | /users/me/change-password | JWT Bearer | Altera a senha do usuário logado |
-
-
-### Recursos do Usuário
-
-| Método | Rota                 | Autenticação | Descrição                          |
-|--------|--------------------|--------------|------------------------------------|
-| GET    | /users/me/recipes   | JWT Bearer   | Lista todas as receitas do usuário |
-| GET    | /users/me/favorites | JWT Bearer   | Lista todos os favoritos do usuário |
-
-
-### 📌 Observações
-- **Autenticação JWT**: Todas as rotas com `JWT Bearer` exigem o token no header `Authorization: Bearer <token>`.  
-- **Públicas**: Rotas de criação e consulta básica não precisam de autenticação.
-
----
-
-## 🔐 Autenticação
-
-### Login
-
-| Método | Rota       | Autenticação | Descrição                     |
-|--------|------------|--------------|-------------------------------|
-| POST   | /login     | Pública      | Gera token JWT para o usuário |
-
-### Redefinição de Senha
-
-| Método | Rota                        | Autenticação | Descrição                                           |
-|--------|----------------------------|--------------|---------------------------------------------------|
-| POST   | /request-reset             | Pública      | Solicita link/token de redefinição de senha via e-mail |
-| POST   | /reset-password/:token     | Pública      | Redefine a senha usando o token enviado por e-mail      |
-
-
-### 📌 Observações
-- Todas as rotas de autenticação são **públicas**, pois o usuário ainda não possui token.  
-- A rota `/reset-password/:token` exige que o token enviado por e-mail seja válido.  
-- Ao fazer login, o usuário recebe um **JWT** que será usado para acessar as rotas protegidas do sistema.
-
----
-
-## 🥪 Receitas
-
-### Manipulação de Receitas
-
-| Método | Rota          | Autenticação | Descrição                             |
-|--------|---------------|--------------|---------------------------------------|
-| GET    | /recipes      | Pública      | Lista todas as receitas               |
-| GET    | /recipes/:id  | Pública      | Busca uma receita pelo ID             |
-| POST   | /recipes      | JWT Bearer   | Cria uma nova receita (com upload de imagem) |
-| PUT    | /recipes/:id  | JWT Bearer   | Atualiza uma receita existente (com upload de imagem) |
-| DELETE | /recipes/:id  | JWT Bearer   | Deleta uma receita existente          |
-
-### Comentários
-
-| Método | Rota                        | Autenticação | Descrição                               |
-|--------|-----------------------------|--------------|----------------------------------------|
-| GET    | /recipes/:recipeId/comments | Pública      | Lista todos os comentários de uma receita |
-| POST   | /recipes/:recipeId/comments | JWT Bearer   | Adiciona um comentário à receita       |
-| DELETE | /recipes/:recipeId/comments/:id | JWT Bearer | Remove um comentário da receita        |
-
-### Favoritos
-
-| Método | Rota                        | Autenticação | Descrição                               |
-|--------|-----------------------------|--------------|----------------------------------------|
-| POST   | /recipes/:recipeId/favorite | JWT Bearer   | Adiciona a receita aos favoritos do usuário |
-| DELETE | /recipes/:recipeId/favorite | JWT Bearer   | Remove a receita dos favoritos do usuário |
-
-
-### 📌 Observações
-- **Rotas públicas**: qualquer pessoa pode visualizar receitas e comentários sem autenticação.  
-- **Rotas protegidas (JWT Bearer)**: criação, edição e exclusão de receitas, comentários e favoritos exigem token JWT válido.  
-- **Upload de imagens**: nas rotas de criação e atualização de receitas, o arquivo de imagem deve ser enviado no campo `image`.
-
----
-
-## 🛡️ Autenticação
-
-As rotas de criação, atualização e exclusão de receitas, comentários e favoritos exigem **Bearer Token**:
-
-```
-Authorization: Bearer SEU_TOKEN
-```
-
-O token é obtido através do login.
-
----
-
 ## 📂 Estrutura do Banco de Dados (Prisma)
 
 * **User**: id, name, email, password, recipes\[], favorites\[], comments\[]
@@ -201,7 +130,7 @@ O token é obtido através do login.
 
 ## 👁️‍🗨️ Testando a API
 
-Sugestão de fluxo no Insomnia ou Postman:
+Sugestão de fluxo no **Insomnia** ou **Postman**:
 
 1. Criar usuário → POST `/users`
 ```json
@@ -215,7 +144,7 @@ Sugestão de fluxo no Insomnia ou Postman:
 2. Fazer login → POST `/login`
 ```json
 {
-	"email": "lucas@gmail.com",
+	"email": "teste@gmail.com",
 	"password": "12345678"
 }
 ```
@@ -252,10 +181,10 @@ image: (upload de imagem)
 
 ---
 
-## 🔴 Em andamento
+## 🔴 Metas
 - ~Redefinição de senha para usuários com token via e-mail~ ✅
-- Deploy
-- Documentação
+- ~Deploy~ ✅
+- ~Documentação~ ✅
 
 ## 📃 Licença
 
