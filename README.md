@@ -44,7 +44,7 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 - Comentários podem ser deletados por quem os fez
 - Exibição da lista de comentários com paginação por receita
 
-### ❤️ **Favoritos***
+### ❤️ **Favoritos**
 
 - Usuários autenticados podem favoritar receitas
 - As receitas favoritadas podem ser removidas quando desejar
