@@ -128,7 +128,7 @@ Caso não defina uma rota personalizada, a API estará disponível em `http://lo
 
 ---
 
-## 👁️‍🗨️ Testando a API
+## 📝 Testando a API
 
 Sugestão de fluxo no **Insomnia** ou **Postman**:
 
@@ -160,14 +160,14 @@ steps: Misture tudo, unte uma forma e coloque para assar por 40 minutos
 image: (upload de imagem)
 ```
 
-4. Adicionar comentário → POST `/recipes/:recipeId/comments` (autenticado)
+4. Adicionar comentário → POST `/comments/:recipeId` (autenticado)
 ```json
 {
 	"content": "Gostei da receita"
 }
 ```
 
-5. Favoritar receita → POST `/recipes/:recipeId/favorite` (autenticado)
+5. Favoritar receita → POST `/favorite/:recipeId` (autenticado)
 - Passar o id da receita no endpoint
 
 ---
