@@ -1,3 +1,4 @@
+import { formatRecipe } from "../../utils/formatRecipe.js";
 import { formatPrepTime } from "../../utils/formatTime.js";
 import { uploadImageToCloudinary } from "../../utils/uploadImage.js";
 import { ForbiddenError, NotFoundError,  } from "../errors/AppError.js";
@@ -20,27 +21,19 @@ export class RecipeService {
       this.recipeRepository.count({}),
     ]);
 
-    const formattedData = data.map( r => ({
-      ...r,
-      prepTime: formatPrepTime(r.prepTime),
-    }));
-
     return {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: formattedData,
+      data: data.map(formatRecipe),
     };
   }
 
   async getRecipeById(id) {
     const recipe = await this.recipeRepository.findUnique(id);
     if (!recipe) throw new NotFoundError("Receita não encontrada");
-    return {
-      ...recipe,
-      prepTime: formatPrepTime(recipe.prepTime),
-    };
+    return formatRecipe(recipe);
   }
 
   async getRecipesByUser(userId, { page = 1, limit = 10, sort = "desc" }) {
@@ -57,17 +50,12 @@ export class RecipeService {
       this.recipeRepository.count({ userId }),
     ]);
 
-    const formattedData = data.map( r => ({
-      ...r,
-      prepTime: formatPrepTime(r.prepTime),
-    }));
-
     return {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: formattedData,
+      data: data.map(formatRecipe),
     };
   }
 
