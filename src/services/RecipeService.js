@@ -1,3 +1,4 @@
+import { formatPrepTime } from "../../utils/formatTime.js";
 import { uploadImageToCloudinary } from "../../utils/uploadImage.js";
 import { ForbiddenError, NotFoundError,  } from "../errors/AppError.js";
 
@@ -19,19 +20,27 @@ export class RecipeService {
       this.recipeRepository.count({}),
     ]);
 
+    const formattedData = data.map( r => ({
+      ...r,
+      prepTime: formatPrepTime(r.prepTime),
+    }));
+
     return {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data,
+      data: formattedData,
     };
   }
 
   async getRecipeById(id) {
     const recipe = await this.recipeRepository.findUnique(id);
     if (!recipe) throw new NotFoundError("Receita não encontrada");
-    return recipe;
+    return {
+      ...recipe,
+      prepTime: formatPrepTime(recipe.prepTime),
+    };
   }
 
   async getRecipesByUser(userId, { page = 1, limit = 10, sort = "desc" }) {
@@ -48,56 +57,57 @@ export class RecipeService {
       this.recipeRepository.count({ userId }),
     ]);
 
+    const formattedData = data.map( r => ({
+      ...r,
+      prepTime: formatPrepTime(r.prepTime),
+    }));
+
     return {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data,
+      data: formattedData,
     };
   }
 
-  async createRecipe({ name, category, ingredients, steps, userId, file }) {
-    let formattedIngredients = ingredients;
-    if (typeof ingredients === "string") {
-      formattedIngredients = ingredients.split(",").map((i) => i.trim());
-    }
-
+  async createRecipe({ name, category, ingredients, steps, prepTime, difficulty, description, portions, status, userId, file }) {
     let image = null;
-    if (file && file.buffer) {
-      image = await uploadImageToCloudinary(file.buffer);
-    }
+    if (file && file.buffer) image = await uploadImageToCloudinary(file.buffer);
 
     return this.recipeRepository.create({
       name,
       category,
-      ingredients: formattedIngredients,
+      ingredients,
       steps,
+      prepTime,
+      difficulty,
+      description,
+      portions,
+      status,
       image,
       userId,
     });
   }
 
-  async updateRecipe(id, userId, { name, category, ingredients, steps, file }) {
+  async updateRecipe(id, userId, { name, category, ingredients, steps, prepTime, difficulty, description, portions, status, file }) {
     const recipe = await this.recipeRepository.findUnique(id);
     if (!recipe) throw new NotFoundError("Receita não encontrada");
     if (recipe.userId !== userId) throw new ForbiddenError("Você não tem permissão para editar esta receita");
 
-    let formattedIngredients = ingredients;
-    if (typeof ingredients === "string") {
-      formattedIngredients = ingredients.split(",").map((i) => i.trim());
-    }
-
     let image = recipe.image;
-    if (file && file.buffer) {
-      image = await uploadImageToCloudinary(file.buffer);
-    }
+    if (file && file.buffer) image = await uploadImageToCloudinary(file.buffer);
 
     return this.recipeRepository.update(id, {
       name,
       category,
-      ingredients: formattedIngredients,
+      ingredients,
       steps,
+      prepTime,
+      difficulty,
+      description,
+      portions,
+      status,
       image,
     });
   }

@@ -1,5 +1,7 @@
+import { ValidationError } from "../errors/AppError.js";
 import { RecipeRepository } from "../repositories/RecipeRepository.js";
 import { RecipeService } from "../services/RecipeService.js";
+import { createRecipeSchema } from "../validators/recipeValidator.js";
 
 const recipeRepository = new RecipeRepository();
 const recipeService = new RecipeService(recipeRepository);
@@ -47,18 +49,11 @@ export class RecipeController {
   };
 
   createRecipe = async (req, res, next) => {
-    try {
-      const { name, category, ingredients, steps } = req.body;
-      const userId = req.userId;
+    const { error, value } = createRecipeSchema.validate(req.body);
+    if (error) return next(new ValidationError(error.details[0].message));
 
-      const recipe = await recipeService.createRecipe({
-        name,
-        category,
-        ingredients,
-        steps,
-        userId,
-        file: req.file,
-      });
+    try {
+      const recipe = await recipeService.createRecipe({ ...value, userId: req.userId, file: req.file });
 
       return res.status(201).json(recipe);
     } catch (error) {
@@ -67,16 +62,15 @@ export class RecipeController {
   };
 
   updateRecipe = async (req, res, next) => {
+    const { error, value } = createRecipeSchema.validate(req.body);
+    if (error) return next(new ValidationError(error.details[0].message));
+
     try {
       const { recipeId } = req.params;
       const userId = req.userId;
-      const { name, category, ingredients, steps } = req.body;
-
+      
       const recipe = await recipeService.updateRecipe(recipeId, userId, {
-        name,
-        category,
-        ingredients,
-        steps,
+        ...value,
         file: req.file,
       });
 
