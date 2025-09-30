@@ -33,7 +33,7 @@ model Recipe {
   steps       String[]
   prepTime    Int
   difficulty  String     @db.VarChar(20)
-  servings    Int
+  portions    Int
   status      String     @default("draft") @db.VarChar(20) // Publicada ou rascunho
   creationDate DateTime  @default(now())
   image       String?
@@ -51,7 +51,7 @@ model Recipe {
 model Favorite {
   id           String     @id @default(uuid())
   creationDate DateTime   @default(now())
-  
+
   userId       String
   recipeId     String
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
