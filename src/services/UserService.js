@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NotFoundError, ConflictError, UnauthorizedError } from "../errors/AppError.js";
+import { formatUserWithStats } from "../../utils/formatUser.js";
 
 export class UserService {
   constructor(userRepository) {
@@ -11,15 +12,15 @@ export class UserService {
   }
 
   async getUserById(id) {
-    const user = await this.userRepository.findUnique({ id });
+    const user = await this.userRepository.findUniqueWithStats({ id });
     if (!user) throw new NotFoundError("Usuário não encontrado");
-    return user;
+    return formatUserWithStats(user);
   }
 
   async getAuthenticatedUser(userId) {
-    const user = await this.userRepository.findUnique({ id: userId });
+    const user = await this.userRepository.findUniqueWithStats({ id: userId });
     if (!user) throw new NotFoundError("Usuário não encontrado");
-    return user;
+    return formatUserWithStats(user);
   }
 
   async createUser({ name, email, password }) {

@@ -12,6 +12,24 @@ export class UserRepository {
      });
   }
 
+  async findUniqueWithStats(where) {
+    return prismaClient.user.findUnique({
+      where,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bio: true,
+        recipes: {
+          where: { status: "Publicada" },
+          select: {
+            _count: { select: { favorites: true } }
+          }
+        }
+      }
+    });
+  }
+
   async findUserWithPassword (where) {
     return prismaClient.user.findUnique({ where })
   }
