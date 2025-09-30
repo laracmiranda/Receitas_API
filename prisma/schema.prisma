@@ -12,9 +12,12 @@ model User {
   name      String     @db.VarChar(100)
   email     String     @unique @db.VarChar(150)
   password  String
+  bio       String?    @db.VarChar(300)
+
   recipes   Recipe[] // Relação com tabela de receitas
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[]  // Relação com a tabela de comentários
+  ratings   Rating[] // Relação com a tabela de avaliações
   resetpassword  ResetPasswordToken[] // Relação com a tabela de redefinição de senha
 
   @@map("users")
@@ -24,12 +27,20 @@ model Recipe {
   id          String     @id @default(uuid())
   name        String     @db.VarChar(100)
   category    String     @db.VarChar(30)
+
+  description String     @db.VarChar(150)
   ingredients String[]
-  steps       String
+  steps       String[]
+  prepTime    Int
+  difficulty  String     @db.VarChar(20)
+  portions    Int
+  status      String     @default("draft") @db.VarChar(20) // Publicada ou rascunho
   creationDate DateTime  @default(now())
   image       String?
+
   favorites Favorite[] // Relação com tabela de favoritos
   comments  Comment[] // Relação com a tabela de comentários
+  ratings   Rating[] // Relação com a tabela de avaliações
 
   userId      String?
   user        User? @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -40,6 +51,7 @@ model Recipe {
 model Favorite {
   id           String     @id @default(uuid())
   creationDate DateTime   @default(now())
+
   userId       String
   recipeId     String
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -59,6 +71,19 @@ model Comment {
   recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 
   @@map("comments")
+}
+
+model Rating {
+  id           String     @id @default(uuid())
+  value        Int        // Nota
+  userId       String
+  recipeId     String
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, recipeId])
+  @@map("ratings")
 }
 
 model ResetPasswordToken {

@@ -1,6 +1,6 @@
 import { UserRepository } from "../repositories/UserRepository.js";
 import { UserService } from "../services/UserService.js";
-import { createUserSchema, updateUserSchema, changePasswordSchema } from "../validators/userValidator.js";
+import { createUserSchema, updateUserSchema, changePasswordSchema, updateBioSchema } from "../validators/userValidator.js";
 import { ValidationError } from "../errors/AppError.js";
 
 const userRepository = new UserRepository();
@@ -54,6 +54,18 @@ export class UserController {
 
     try {
       const updatedUser = await userService.updateUser(req.userId, req.body);
+      return res.status(200).json(updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  updateBio = async (req, res, next) => {
+    const { error } = updateBioSchema.validate(req.body);
+    if (error) return next(new ValidationError(error.details[0].message));
+    try {
+      const { bio } = req.body;
+      const updatedUser = await userService.updateBio(req.userId, bio);
       return res.status(200).json(updatedUser);
     } catch (error) {
       next(error);

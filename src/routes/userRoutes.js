@@ -10,7 +10,8 @@ router.get("/me", authenticate, userController.findUserAuthenticated);
 router.get("/:userId", userController.findUser);
 router.post("/", userController.createUser);
 router.put("/me", authenticate, userController.updateUser);
+router.patch("/me/bio", authenticate, userController.updateBio);
 router.delete("/me", authenticate, userController.deleteUser);
-router.put("/me/change-password", authenticate, userController.changePassword);
+router.patch("/me/change-password", authenticate, userController.changePassword);
 
 export default router;

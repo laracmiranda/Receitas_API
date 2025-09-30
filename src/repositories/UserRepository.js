@@ -31,6 +31,14 @@ export class UserRepository {
     });
   }
 
+  async updateBio(id, bio) {
+    return prismaClient.user.update({
+      where: { id },
+      data: { bio },
+      select: { id: true, name: true, email: true, bio: true },
+    });
+  }
+  
   async delete(id) {
     return prismaClient.user.delete({ where: { id } });
   }
