@@ -42,6 +42,13 @@ export class UserService {
     return this.userRepository.update(userId, { name, email });
   }
 
+  async updateBio(userId, bio){
+    const user = await this.userRepository.findUnique({ id: userId });
+    if (!user) throw new NotFoundError("Usuário não encontrado");
+
+    return this.userRepository.updateBio(userId, bio);
+  }
+
   async changePassword(userId, currentPassword, newPassword) {
     const user = await this.userRepository.findUserWithPassword({ id: userId });
     if (!user) throw new NotFoundError("Usuário não encontrado");
