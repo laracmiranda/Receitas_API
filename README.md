@@ -29,6 +29,7 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 - Autenticação `JWT` com expiração
 - Senhas criptografadas com `bcryptjs`
 - Atualização de perfil
+- Exibição de perfil com quantidade de receitas cadastradas e curtidas
 - Redefinição de senha via e-mail com token com `nodemailer`
 
 ### 🥪 **Receitas**
@@ -37,6 +38,8 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 - Upload de imagens com `Cloudinary`
 - Exibição das receitas cadastradas para o usuário autenticado
 - Paginação para a exibição da lista de receitas
+- Exibição formatada para evitar duplicação de dados
+- Exibição da quantidade de likes e avaliações da receita
 
 ### 💬 **Comentários**
 
@@ -49,6 +52,11 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 - Usuários autenticados podem favoritar receitas
 - As receitas favoritadas podem ser removidas quando desejar
 - Paginação para a exibição da lista de receitas favoritadas
+
+### ⭐ **Avaliações**
+- Usuários autenticados podem deixar avaliações de 1 à 5 nas receitas
+- As receitas possuem média de avaliações
+- Só pode ser feita uma avaliação por usuário
 
 ---
 
@@ -125,6 +133,7 @@ Caso não defina uma rota personalizada, a API estará disponível em `http://lo
 * **Recipe**: id, name, category, ingredients\[], steps, image, userId, favorites\[], comments\[]
 * **Favorite**: id, userId, recipeId, creationDate
 * **Comment**: id, content, userId, recipeId, creationDate
+* **Rating**: id, value, userId, recipeId
 
 ---
 
@@ -168,6 +177,9 @@ image: (upload de imagem)
 ```
 
 5. Favoritar receita → POST `/favorite/:recipeId` (autenticado)
+- Passar o id da receita no endpoint
+
+6. Deixar uma avaliação → POST `/rating/:recipeId` (autenticado)
 - Passar o id da receita no endpoint
 
 ---
