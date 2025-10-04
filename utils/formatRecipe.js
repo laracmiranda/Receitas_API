@@ -1,7 +1,7 @@
-// Padronizar e melhorar o retorno na requisição das receitas
 import { formatPrepTime } from "./formatTime.js";
 
 export function formatRecipe(recipe) {
+  
   return {
     id: recipe.id,
     name: recipe.name,
@@ -17,5 +17,7 @@ export function formatRecipe(recipe) {
     image: recipe.image,
     user: recipe.user,
     likes: recipe._count?.favorites ?? 0,
+    ratingCount: recipe.ratingCount ?? 0,
+    ratingAvg: recipe.ratingAvg ?? null,
   };
 }
