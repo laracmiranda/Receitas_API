@@ -2,6 +2,9 @@ import { formatRecipe } from "../../utils/formatRecipe.js";
 import { formatPrepTime } from "../../utils/formatTime.js";
 import { uploadImageToCloudinary } from "../../utils/uploadImage.js";
 import { ForbiddenError, NotFoundError,  } from "../errors/AppError.js";
+import { RatingRepository } from "../repositories/RatingRepository.js";
+
+const ratingRepository = new RatingRepository();
 
 export class RecipeService {
   constructor(recipeRepository) {
@@ -21,19 +24,36 @@ export class RecipeService {
       this.recipeRepository.count({}),
     ]);
 
+    const enriched = await Promise.all(
+      data.map(async recipe => {
+        const rating = await ratingRepository.getAverageByRecipe(recipe.id);
+        return formatRecipe({
+          ...recipe,
+          ratingCount: rating.count,
+          ratingAvg: rating.average,
+        });
+      })
+    );
+
     return {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: data.map(formatRecipe),
+      data: enriched,
     };
   }
 
   async getRecipeById(id) {
     const recipe = await this.recipeRepository.findUnique(id);
     if (!recipe) throw new NotFoundError("Receita não encontrada");
-    return formatRecipe(recipe);
+
+    const rating = await ratingRepository.getAverageByRecipe(recipe.id);
+    return formatRecipe({
+      ...recipe,
+      ratingCount: rating.count,
+      ratingAvg: rating.average,
+    });
   }
 
   async getRecipesByUser(userId, { page = 1, limit = 10, sort = "desc" }) {
@@ -50,12 +70,23 @@ export class RecipeService {
       this.recipeRepository.count({ userId }),
     ]);
 
+    const enriched = await Promise.all(
+      data.map(async recipe => {
+        const rating = await ratingRepository.getAverageByRecipe(recipe.id);
+        return formatRecipe({
+          ...recipe,
+          ratingCount: rating.count,
+          ratingAvg: rating.average,
+        });
+      })
+    );
+
     return {
       page,
       limit,
       total,
       totalPages: Math.ceil(total / limit),
-      data: data.map(formatRecipe),
+      data: enriched,
     };
   }
 
