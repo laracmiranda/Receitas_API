@@ -74,9 +74,11 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 - **Swagger** - Documentação da API
 
 </br>
-Para saber mais sobre o Upload de imagens com Cloudinary, você pode checar esse repositório feito por mim!
+Você pode aprender algumas etapas desse projeto nesses repositórios feitos por mim!
 
 👉 [Armazenando imagens em banco relacional](https://github.com/laracmiranda/Estudos_Gerais/tree/main/Armazenamento%20de%20Imagens)
+
+👉 [Redefinir senha com nodemailer](https://github.com/laracmiranda/Estudos_Gerais/tree/main/Redefini%C3%A7%C3%A3o%20de%20Senha%20com%20nodemailer)
 
 --- 
 ## 📦 Instalação
