@@ -25,6 +25,9 @@ tags:
     description: Comentários em receitas
   - name: Favoritos
     description: Gerenciamento de favoritos
+  - name: Avaliações
+    description: Avaliando receitas cadastradas
+
 
 
 paths:
@@ -163,7 +166,7 @@ paths:
         "204": { description: Usuário deletado com sucesso }
 
   /users/me/change-password:
-    put:
+    patch:
       summary: Altera a senha do usuário autenticado
       description: |
         ### Descrição
@@ -196,7 +199,36 @@ paths:
                 properties:
                   message: { type: string, example: Senha atualizada com sucesso! }
         "401": { description: Senha atual incorreta }
-                
+
+  /users/me/bio:
+    patch:
+      summary: Edita a biografia do perfil do usuário
+      description: |
+        ### Descrição
+        Esta rota faz a **atualização** da biografia de um usuário já existente.
+
+        #### Observações
+        - Necessário autenticação prévia.
+        - O ID do usuário já vem do token de autenticação.
+      tags: [Usuários]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bio]
+              properties:
+                bio: { type: string, example: Cozinho há 10 anos com muito amor }
+      responses:
+        "200":
+          description: Usuário atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+                      
   /auth/login:
     post:
       summary: Login do usuário
@@ -582,6 +614,69 @@ paths:
           schema: { type: string }
       responses:
         "204": { description: Receita removida dos favoritos }
+  
+  /rating/{recipeId}:
+    get:
+      summary: Lista as avaliações de uma receita
+      description: |
+        ### Descrição
+        Esta rota faz **lista** a quantidade de avaliações de uma receita e a média de avaliações
+
+        #### Observações
+        - Não requer autenticação prévia
+        - Necessário informar o ID da receita na URL
+      tags: [Avaliações]
+      parameters:
+        - in: path
+          name: recipeId
+          schema: { type: string }
+          required: true
+      responses:
+        "200":
+          description: Senha redefinida com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avarage: { type: float, example: 4.5 }
+                  count: { type: int, example: 30 }
+    
+    post:
+      summary: Avaliar Receita
+      description: |
+        ### Descrição
+        Esta rota faz a **avaliação** de uma receita existente.
+
+        #### Observações
+        - Requer autenticação prévia
+        - Necessário informar o ID da receita na URL
+        - Avaliação deve ser feita com valores de 1 à 5
+      tags: [Avaliações]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          schema: { type: string }
+          required: true
+          description: Id da Receita
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [value]
+              properties:
+                value: { type: int, example: 5 }
+      responses:
+        "200":
+          description: Senha redefinida com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RateRecipe" }
 
 components:
   securitySchemes:
@@ -618,38 +713,65 @@ components:
         id: { type: string, example: uuid-da-receita }
         name: { type: string, example: Bolo de Chocolate }
         category: { type: string, example: Sobremesa }
-        ingredients: { type: string, example: '2 ovos, 300g de farinha, 300g de cacau em pó' }
-        steps: { type: string, example: Misture tudo numa forma e coloque para assar em forno pré-aquecido por 30 minutos }
-        image: { type: string, example: url-da-imagem.jpg }
-
-    RecipeCreate:
-      type: object
-      required: [name, category, ingredients, steps]
-      properties:
-        name: { type: string, example: Bolo de Chocolate }
-        category: { type: string, example: Sobremesa }
+        description: { type: string, example: Receita de bolo caseira da minha mãe! }
         ingredients:
           type: array
           items: { type: string }
           example: ["Farinha", "Ovos", "Chocolate"]
         steps:
-          type: string
-          example: Misturar os ingredientes, Assar por 40 minutos
-        image: { type: string, format: binary }
+          type: array
+          items: { type: string }
+          example: ["Misturar os ingredientes", "Assar por 40 minutos"]
+        prepTime: { type: string, example: 1h30 }
+        difficulty: { type: string, example: Médio }
+        portions: { type: int, example: 5 }
+        status: { type: string, example: Publicada }
+        creationDate: { type: creationDate, example: 2025-10-15T21:36:30.471Z }
+        image: { type: string, example: url-da-imagem.jpg }
+        likes: { type: int, example: 23 }
+        ratingCount: { type: int, example: 20 }
+        ratingAvg: { type: float, example: 4.5 }
+
+    RecipeCreate:
+      type: object
+      required: [name, category, ingredients, steps, description, prepTime, difficulty, portions, status]
+      properties:
+        name: { type: string, example: Bolo de Chocolate }
+        category: { type: string, example: Sobremesa }
+        description: { type: string, example: Receita de bolo caseira da minha mãe! }
+        ingredients:
+          type: array
+          items: { type: string }
+          example: ["Farinha", "Ovos", "Chocolate"]
+        steps:
+          type: array
+          items: { type: string }
+          example: ["Misturar os ingredientes", "Assar por 40 minutos"]
+        prepTime: { type: string, example: 1h30 }
+        difficulty: { type: string, example: Médio }
+        portions: { type: int, example: 5 }
+        status: { type: string, example: Publicada }
+        image: { type: string, example: url-da-imagem.jpg }
 
     RecipeUpdate:
       type: object
       properties:
-        name: { type: string, example: Bolo de Chocolate Atualizado }
+        name: { type: string, example: Bolo de Chocolate }
         category: { type: string, example: Sobremesa }
+        description: { type: string, example: Receita de bolo caseira da minha mãe! }
         ingredients:
           type: array
           items: { type: string }
-          example: ["Farinha", "2 ovos", "Gotas de chocolate nobre"]
+          example: ["Farinha", "Ovos", "Chocolate"]
         steps:
-          type: string
-          example: Misturar os ingredientes, adicionar as gotas de chocolate, assar em forno pré-aquecido 180º graus por 20 minutos
-        image: { type: string, format: binary }
+          type: array
+          items: { type: string }
+          example: ["Misturar os ingredientes", "Assar por 40 minutos"]
+        prepTime: { type: string, example: 1h30 }
+        difficulty: { type: string, example: Médio }
+        portions: { type: int, example: 5 }
+        status: { type: string, example: Publicada }
+        image: { type: string, example: url-da-imagem.jpg }
 
     Comment:
       type: object
@@ -664,3 +786,11 @@ components:
       required: [content]
       properties:
         content: { type: string, example: Receita maravilhosa! }
+
+    RateRecipe:
+      type: object
+      properties:
+        id: { type: string, example: uuid-da-avaliação }
+        value: { type: int, example: Avaliação de 1 à 5 }
+        userId: { type: string, example: uuid-do-usuario }
+        recipeId: { type: string, example: uuid-da-receita }
