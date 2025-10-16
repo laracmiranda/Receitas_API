@@ -734,32 +734,44 @@ components:
 
     RecipeCreate:
       type: object
-      required: [name, category, ingredients, steps]
+      required: [name, category, ingredients, steps, description, prepTime, difficulty, portions, status]
       properties:
         name: { type: string, example: Bolo de Chocolate }
         category: { type: string, example: Sobremesa }
+        description: { type: string, example: Receita de bolo caseira da minha mãe! }
         ingredients:
           type: array
           items: { type: string }
           example: ["Farinha", "Ovos", "Chocolate"]
         steps:
-          type: string
-          example: Misturar os ingredientes, Assar por 40 minutos
-        image: { type: string, format: binary }
+          type: array
+          items: { type: string }
+          example: ["Misturar os ingredientes", "Assar por 40 minutos"]
+        prepTime: { type: string, example: 1h30 }
+        difficulty: { type: string, example: Médio }
+        portions: { type: int, example: 5 }
+        status: { type: string, example: Publicada }
+        image: { type: string, example: url-da-imagem.jpg }
 
     RecipeUpdate:
       type: object
       properties:
-        name: { type: string, example: Bolo de Chocolate Atualizado }
+        name: { type: string, example: Bolo de Chocolate }
         category: { type: string, example: Sobremesa }
+        description: { type: string, example: Receita de bolo caseira da minha mãe! }
         ingredients:
           type: array
           items: { type: string }
-          example: ["Farinha", "2 ovos", "Gotas de chocolate nobre"]
+          example: ["Farinha", "Ovos", "Chocolate"]
         steps:
-          type: string
-          example: Misturar os ingredientes, adicionar as gotas de chocolate, assar em forno pré-aquecido 180º graus por 20 minutos
-        image: { type: string, format: binary }
+          type: array
+          items: { type: string }
+          example: ["Misturar os ingredientes", "Assar por 40 minutos"]
+        prepTime: { type: string, example: 1h30 }
+        difficulty: { type: string, example: Médio }
+        portions: { type: int, example: 5 }
+        status: { type: string, example: Publicada }
+        image: { type: string, example: url-da-imagem.jpg }
 
     Comment:
       type: object
