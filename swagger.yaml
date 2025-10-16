@@ -614,6 +614,69 @@ paths:
           schema: { type: string }
       responses:
         "204": { description: Receita removida dos favoritos }
+  
+  /rating/{recipeId}:
+    get:
+      summary: Lista as avaliações de uma receita
+      description: |
+        ### Descrição
+        Esta rota faz **lista** a quantidade de avaliações de uma receita e a média de avaliações
+
+        #### Observações
+        - Não requer autenticação prévia
+        - Necessário informar o ID da receita na URL
+      tags: [Avaliações]
+      parameters:
+        - in: path
+          name: recipeId
+          schema: { type: string }
+          required: true
+      responses:
+        "200":
+          description: Senha redefinida com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avarage: { type: float, example: 4.5 }
+                  count: { type: int, example: 30 }
+    
+    post:
+      summary: Avaliar Receita
+      description: |
+        ### Descrição
+        Esta rota faz a **avaliação** de uma receita existente.
+
+        #### Observações
+        - Requer autenticação prévia
+        - Necessário informar o ID da receita na URL
+        - Avaliação deve ser feita com valores de 1 à 5
+      tags: [Avaliações]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: recipeId
+          schema: { type: string }
+          required: true
+          description: Id da Receita
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [value]
+              properties:
+                value: { type: int, example: 5 }
+      responses:
+        "200":
+          description: Senha redefinida com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/RateRecipe" }
 
 components:
   securitySchemes:
@@ -643,11 +706,6 @@ components:
       properties:
         name: { type: string, example: João de Oliveira }
         email: { type: string, example: joao@email.com }
-    
-    BioUpdate:
-      type: object
-      properties:
-        bio: { type: string, example: Cozinho há 10 anos com muito amor! }
 
     Recipe:
       type: object
