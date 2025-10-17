@@ -29,7 +29,7 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 - Autenticação `JWT` com expiração
 - Senhas criptografadas com `bcryptjs`
 - Atualização de perfil
-- Exibição de perfil com quantidade de receitas cadastradas e curtidas
+- Perfil do usuário com biografia, quantidade de receitas cadastradas e curtidas 
 - Redefinição de senha via e-mail com token com `nodemailer`
 
 ### 🥪 **Receitas**
@@ -77,7 +77,6 @@ Permite criar, visualizar, atualizar e deletar receitas, adicionar comentários 
 Você pode aprender algumas etapas desse projeto nesses repositórios feitos por mim!
 
 👉 [Armazenando imagens em banco relacional](https://github.com/laracmiranda/Estudos_Gerais/tree/main/Armazenamento%20de%20Imagens)
-
 👉 [Redefinir senha com nodemailer](https://github.com/laracmiranda/Estudos_Gerais/tree/main/Redefini%C3%A7%C3%A3o%20de%20Senha%20com%20nodemailer)
 
 --- 
@@ -132,7 +131,7 @@ Caso não defina uma rota personalizada, a API estará disponível em `http://lo
 ## 📂 Estrutura do Banco de Dados (Prisma)
 
 * **User**: id, name, email, password, recipes\[], favorites\[], comments\[]
-* **Recipe**: id, name, category, ingredients\[], steps, image, userId, favorites\[], comments\[]
+* **Recipe**: id, name, category, ingredients\[], steps[], difficulty, portion, prepTime, status, image, userId, favorites\[], comments\[]
 * **Favorite**: id, userId, recipeId, creationDate
 * **Comment**: id, content, userId, recipeId, creationDate
 * **Rating**: id, value, userId, recipeId
@@ -166,6 +165,11 @@ Sugestão de fluxo no **Insomnia** ou **Postman**:
 ```
 name: Bolo de Chocolate
 category: Sobremesa
+description: "Receita de vó"
+prepTime: "1h30"
+portions: 5
+difficulty: "Iniciante"
+status: "Publicada"
 ingredients: 2 ovos, 400g de farinha, 300g de nescau
 steps: Misture tudo, unte uma forma e coloque para assar por 40 minutos
 image: (upload de imagem)
@@ -194,11 +198,6 @@ image: (upload de imagem)
 5. Abra um Pull Request explicando o que altera e por quê
 
 ---
-
-## 🔴 Metas
-- ~Redefinição de senha para usuários com token via e-mail~ ✅
-- ~Deploy~ ✅
-- ~Documentação~ ✅
 
 ## 📃 Licença
 
