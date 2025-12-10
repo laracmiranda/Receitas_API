@@ -201,4 +201,4 @@ image: (upload de imagem)
 
 ## 📃 Licença
 
-Este projeto está licenciado sob a licença **MIT** 
+Este projeto está licenciado sob a licença **GPL-2.0**. Todos os contrubuidores e usuários estão sujeitos à licença! 
